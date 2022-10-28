@@ -81,13 +81,13 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - uses: azure/arm-deploy@v1
-      id: deploy
-      with:
-        subscriptionId: ${{ env.SUBSCRIPTIONID }}
-        resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./ArmTemplates/container-webapp-template.json
-        parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.APPINSIGHTSLOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+    #- uses: azure/arm-deploy@v1
+    #  id: deploy
+    #  with:
+    #    subscriptionId: ${{ env.SUBSCRIPTIONID }}
+    #    resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
+    #    template: ./ArmTemplates/container-webapp-template.json
+    #    parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.APPINSIGHTSLOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
  
     - name: Get ACR credentials
       id: getACRCred
