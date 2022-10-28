@@ -16,7 +16,7 @@ env:
   REGISTRYNAME: "azurewebappforcontainersacr"
   REGISTRYLOCATION: "South Central US"
   IMAGENAME: "azurewebappforcontainersedd3"
-  RESOURCEGROUPNAME: AzureWebAppforContainers-rg
+  RESOURCEGROUPNAME: rg-AzureWebAppforContainers
   LOCATION: East US 2
   APPINSIGHTSLOCATION: East US 2
   SUBSCRIPTIONID: f5e66d29-1a7f-4ee3-822e-74f644d3e665
