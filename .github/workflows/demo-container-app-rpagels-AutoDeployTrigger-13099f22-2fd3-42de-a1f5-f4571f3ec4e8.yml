@@ -3,12 +3,12 @@ name: Trigger auto deployment for demo-container-app-rpagels
 # When this action will be executed
 on:
   # Automatically trigger it when detected changes in repo
-  push:
-    branches: 
-      [ master ]
-    paths:
-    - '**'
-    - '.github/workflows/demo-container-app-rpagels-AutoDeployTrigger-13099f22-2fd3-42de-a1f5-f4571f3ec4e8.yml'
+  #push:
+  #  branches: 
+  ##    [ master ]
+  #  paths:
+  #  - '**'
+  #  - '.github/workflows/demo-container-app-rpagels-AutoDeployTrigger-13099f22-2fd3-42de-a1f5-f4571f3ec4e8.yml'
 
   # Allow mannually trigger 
   workflow_dispatch:      
