@@ -15,7 +15,7 @@ env:
   REGISTRYSKU: "Standard"
   REGISTRYNAME: "azurewebappforcontainersacr"
   REGISTRYLOCATION: "South Central US"
-  IMAGENAME: "azurewebappforcontainersedd3"
+  IMAGENAME: "azurewebappforcontainersedd3:latest"
   RESOURCEGROUPNAME: rg-AzureWebAppforContainers
   LOCATION: East US 2
   APPINSIGHTSLOCATION: East US 2
@@ -70,6 +70,7 @@ jobs:
       run: |
         docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
         docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
         docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
   deploy:
@@ -109,7 +110,7 @@ jobs:
       uses: Azure/aca-review-apps@v0.2.1
       with:
         # Name of the Resource Group in which the Container App will be created
-        resource-group: 'rg-AzureWebAppforContainers'
+        resource-group: ${{ env.RESOURCEGROUPNAME }}
         # Name of the Container App
         name: 'azurecontainerapp-rpagels'
         # Name of Container Image. If the `mode` input is `deactivate-revision`, this input is ignored.
