@@ -11,7 +11,7 @@ on:
   #  - '.github/workflows/demo-container-app-rpagels-AutoDeployTrigger-13099f22-2fd3-42de-a1f5-f4571f3ec4e8.yml'
 
   # Allow mannually trigger 
-  workflow_dispatch:      
+  #workflow_dispatch:      
 
 jobs:
   build:
