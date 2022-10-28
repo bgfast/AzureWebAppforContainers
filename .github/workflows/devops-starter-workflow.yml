@@ -4,6 +4,9 @@ on:
     branches:
       - master
 
+  # Allow mannually trigger 
+  workflow_dispatch: 
+  
 env:
   APPNAME: AzureWebAppforContainers
   APPLICATIONPATH: Application
