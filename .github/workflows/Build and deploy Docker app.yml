@@ -101,13 +101,13 @@ jobs:
            echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
            echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
-    #- name: 'Deploy to Azure Web App for Container'
-    #  uses: azure/webapps-deploy@v2
-    #  with: 
-    #    app-name: ${{ env.APPNAME }} 
-    #    images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+    - name: 'Deploy to Azure Web App for Container'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ env.APPNAME }} 
+        images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
-    - name: Create Azure Container App Review Revisions
+    - name: Deploy Azure Container App Review Revisions
       uses: Azure/aca-review-apps@v0.2.1
       with:
         # Name of the Resource Group in which the Container App will be created
