@@ -14,7 +14,7 @@ env:
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
   REGISTRYSKU: "Standard"
   REGISTRYNAME: "azurewebappforcontainersacr"
-  REGISTRYLOCATION: "South Central US"
+  REGISTRYLOCATION: "East US 2"
   IMAGENAME: "azurewebappforcontainersedd3"
   #IMAGENAME: "azurewebappforcontainersedd3:latest"
   RESOURCEGROUPNAME: rg-AzureWebAppforContainers
