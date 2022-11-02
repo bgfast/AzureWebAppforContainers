@@ -74,9 +74,29 @@ jobs:
         #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
         docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
-  deploy:
-    name: Deploy App to Container App
+  deploy_infrastructure:
+    name: Deploy Infrastructure
     needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - uses: azure/arm-deploy@v1
+      id: deploy
+      with:
+        subscriptionId: ${{ env.SUBSCRIPTIONID }}
+        resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
+        template: ./ArmTemplates/container-webapp-template.json
+        parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.APPINSIGHTSLOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+ 
+  deploy_application_to_webapp:
+    name: Deploy App to Web App
+    needs: deploy_infrastructure
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -93,19 +113,31 @@ jobs:
     #    resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
     #    template: ./ArmTemplates/container-webapp-template.json
     #    parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.APPINSIGHTSLOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
- 
-    - name: Get ACR credentials
-      id: getACRCred
-      run: |
-           echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
-           echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-           echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
     - name: 'Deploy to Azure Web App for Container'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ env.APPNAME }} 
         images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        
+  deploy_application_to_containerapp:
+    name: Deploy App to Container App
+    needs: deploy_infrastructure
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Get ACR credentials
+      id: getACRCred
+      run: |
+           echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
+           echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
+           echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
 
     - name: Deploy Azure Container App Review Revisions
       uses: Azure/aca-review-apps@v0.2.1
@@ -125,7 +157,7 @@ jobs:
   FunctionalTests:
     name: Functional tests
     runs-on: windows-latest
-    needs: deploy
+    needs: [deploy_application_to_webapp, deploy_application_to_containerapp]
     steps:
     - uses: actions/checkout@master
 
