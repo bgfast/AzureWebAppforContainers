@@ -15,7 +15,8 @@ env:
   REGISTRYSKU: "Standard"
   REGISTRYNAME: "azurewebappforcontainersacr"
   REGISTRYLOCATION: "South Central US"
-  IMAGENAME: "azurewebappforcontainersedd3:latest"
+  IMAGENAME: "azurewebappforcontainersedd3"
+  #IMAGENAME: "azurewebappforcontainersedd3:latest"
   RESOURCEGROUPNAME: rg-AzureWebAppforContainers
   LOCATION: East US 2
   APPINSIGHTSLOCATION: East US 2
