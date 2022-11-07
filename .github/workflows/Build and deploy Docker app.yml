@@ -148,7 +148,7 @@ jobs:
         name: 'azurecontainerapp-rpagels'
         # Name of Container Image. If the `mode` input is `deactivate-revision`, this input is ignored.
         # image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
-        image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
         # Suffixes for New Revision or Target Revision of deactivation. If the `mode` input is `deactivate-revision`, this input needs to be set.
         revision-name-suffix: 'staging'
         # Enable Deactivation-Revision Mode of this action. `true` or `false`. Default value is `false`
