@@ -6,6 +6,7 @@ param containerAppLogAnalyticsName string
 @allowed([
   'northcentralusstage'
   'eastus'
+  'eastus2'
   'northeurope'
   'canadacentral'
 ])
