@@ -175,10 +175,14 @@ jobs:
 
     - name: DEBUG ONLY Display Output Variables
       run: |
+         echo 'output_apiServiceName: ${{ steps.Infra.outputs.out_apiServiceName }}'
          echo 'output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}'
          echo 'output_appInsightsApplicationId: ${{ steps.Infra.outputs.out_appInsightsApplicationId }}'
          echo 'output_appInsightsAPIApplicationId: ${{ steps.Infra.outputs.out_appInsightsAPIApplicationId }}'
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
+         echo 'output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}'
+         echo 'output_acr_username: ${{ steps.Infra.outputs.out_acr_username }}'
+         echo 'output_acr_pass: ${{ steps.Infra.outputs.out_acr_pass }}'
 
   docker_build_pushtoacr:
     runs-on: ubuntu-latest
@@ -258,7 +262,7 @@ jobs:
     
   deploy_application_to_webapp:
     name: Deploy App to Web App
-    needs: deploy_infrastructure
+    needs: docker_build_pushtoacr
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -285,7 +289,7 @@ jobs:
         
   deploy_application_to_containerapp:
     name: Deploy App to Container App
-    needs: deploy_infrastructure
+    needs: docker_build_pushtoacr
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
