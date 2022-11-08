@@ -36,27 +36,27 @@ resource appService 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
-resource webAppName_stagingSlotName 'Microsoft.Web/sites/slots@2022-03-01' = {
-  parent: appService
-  name: 'dev'
-  identity: {
-    type: 'SystemAssigned'
-  }
-  tags: {
-    displayName: 'webAppSlots'
-  }
-  location: location
-  properties: {
-    siteConfig: {
-      minTlsVersion: '1.2'
-      healthCheckPath: '/healthy'
-      netFrameworkVersion: 'v6.0'
-      alwaysOn: true
-      autoHealEnabled: true
-    }
-    serverFarmId: appServicePlan.id
-  }
-}
+// resource webAppName_stagingSlotName 'Microsoft.Web/sites/slots@2022-03-01' = {
+//   parent: appService
+//   name: 'dev'
+//   identity: {
+//     type: 'SystemAssigned'
+//   }
+//   tags: {
+//     displayName: 'webAppSlots'
+//   }
+//   location: location
+//   properties: {
+//     siteConfig: {
+//       minTlsVersion: '1.2'
+//       healthCheckPath: '/healthy'
+//       netFrameworkVersion: 'v6.0'
+//       alwaysOn: true
+//       autoHealEnabled: true
+//     }
+//     serverFarmId: appServicePlan.id
+//   }
+// }
 
 resource standardWebTestPageHome  'Microsoft.Insights/webtests@2022-06-15' = {
   name: 'Home Page Ping Test'
@@ -106,6 +106,6 @@ resource standardWebTestPageHome  'Microsoft.Insights/webtests@2022-06-15' = {
 
 output out_appService string = appService.id
 output out_webSiteName string = appService.properties.defaultHostName
-output out_webSiteSlotName string = webAppName_stagingSlotName.properties.defaultHostName
+// output out_webSiteSlotName string = webAppName_stagingSlotName.properties.defaultHostName
 output out_appServiceprincipalId string = appService.identity.principalId
-output out_appServiceSlotServiceprincipalId string = webAppName_stagingSlotName.identity.principalId
+// output out_appServiceSlotServiceprincipalId string = webAppName_stagingSlotName.identity.principalId
