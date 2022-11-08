@@ -30,7 +30,7 @@ env:
   
 jobs:
   build:
-    name: Build Application #and push application to ACR
+    name: Build Application and Container #and push application to ACR
     #needs: deploy_infrastructure
     runs-on: ubuntu-latest
     steps:
@@ -66,7 +66,12 @@ jobs:
       with:
         name: IaC
         path: ${{ github.workspace }}/IaC/*.*
-          
+
+    - name: Docker Build & Push to ACR
+     run: |
+       #docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
+       #docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+
     # Create Azure container registry
     #- uses: azure/arm-deploy@v1
     #  id: createAcr
@@ -132,6 +137,13 @@ jobs:
         inlineScript: |
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
+    - name: Download Build Artifact-Infrastructure
+      uses: actions/download-artifact@v2
+      continue-on-error: false
+      with:
+        name: IaC
+        path: ${{ github.workspace }}/IaC
+        
       # Deploy ARM Template using Bicep DSL
     - name: Infrastructure Deploy
       id: Infra
