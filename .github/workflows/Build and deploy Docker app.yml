@@ -50,11 +50,11 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Restore
-      run: dotnet restore "${{ env.WORKING_DIRECTORY }}"
+      run: dotnet restore ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj
 
     ## SubscriptionKey
     - name: Build
-      run: dotnet build ./aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-restore
+      run: dotnet build ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-restore
 
       ###########################################
       # Upload Artifacts
