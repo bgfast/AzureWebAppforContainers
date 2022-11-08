@@ -26,17 +26,18 @@ env:
   Azure_Resource_GroupName: 'rg-AzureWebAppforContainers'
   Azure_Resource_GroupLocation: 'eastus2'
   CONFIGURATION: Release
+  WORKING_DIRECTORY: .
   
 jobs:
   build:
-    name: Build and push application to ACR
+    name: Build Application #and push application to ACR
     #needs: deploy_infrastructure
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
