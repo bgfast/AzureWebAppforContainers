@@ -53,14 +53,17 @@ jobs:
     - name: Build
       run: dotnet build ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-restore
 
+    - name: Publish
+      run: dotnet publish ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output './web'
+
     - name: Upload Build Artifacts-Website
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
-        name: aspnet-core-dotnet-core-net6
+        name: Web
         path: ${{ github.workspace }}/web
 
     - name: Upload Infrastucture Files
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: IaC
         path: ${{ github.workspace }}/IaC/*.*
@@ -136,7 +139,7 @@ jobs:
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
     - name: Download Build Artifact-Infrastructure
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       continue-on-error: false
       with:
         name: IaC
