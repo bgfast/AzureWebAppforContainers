@@ -28,7 +28,7 @@ var defaultTags = {
 }
 
 // Create Application Insights
-module appinsightsmod 'main-1-appinsights.bicep' = {
+module appinsightsmod './main-1-AppInsights.bicep' = {
   name: 'appinsightsdeploy'
   params: {
     location: location
@@ -40,7 +40,7 @@ module appinsightsmod 'main-1-appinsights.bicep' = {
 }
 
 // Create Web App
-module webappmod './main-1-webapp.bicep' = {
+module webappmod './main-1-WebApp.bicep' = {
   name: 'webappdeploy'
   params: {
     webAppPlanName: webAppPlanName
@@ -55,7 +55,7 @@ module webappmod './main-1-webapp.bicep' = {
 }
 
 // Create Azure KeyVault
-module keyvaultmod './main-1-keyvault.bicep' = {
+module keyvaultmod './main-1-KeyVault.bicep' = {
   name: keyvaultName
   params: {
     location: location
@@ -64,7 +64,7 @@ module keyvaultmod './main-1-keyvault.bicep' = {
  }
 
  // Create Azure Container Registry
- module containerregistrymod 'main-1-ContainerRegistry.bicep' = {
+ module containerregistrymod './main-1-ContainerRegistry.bicep' = {
   name: containerregistryName
   params: {
     containerregistryName: containerregistryName
@@ -73,7 +73,7 @@ module keyvaultmod './main-1-keyvault.bicep' = {
  }
 
  // Create Azure Container App
- module containerappmod 'main-1-ContainerApps.bicep' = {
+ module containerappmod './main-1-ContainerApps.bicep' = {
   name: containerAppName
   params: {
     containerAppEnvName: containerAppEnvName
@@ -93,7 +93,7 @@ param ADOServiceprincipalObjectId string = '38372314-e1c9-455d-a11e-3edb60a46687
 param AzObjectIdPagels string = 'b6be0700-1fda-4f88-bf20-1aa508a91f73'
 
  // Create Configuration Entries
-module configsettingsmod './main-1-configsettings.bicep' = {
+module configsettingsmod './main-1-ConfigSettings.bicep' = {
   name: 'configSettings'
   params: {
     keyvaultName: keyvaultName

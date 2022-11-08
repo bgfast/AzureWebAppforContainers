@@ -152,7 +152,7 @@ jobs:
       continue-on-error: false
       with:
         resourceGroupName: ${{ env.Azure_Resource_GroupName }}
-        template: /IaC/main-1.bicep
+        template: ./IaC/main-1.bicep
         #parameters: ./IaC/main-1.params.json
         deploymentMode: Incremental
         failOnStdErr: false
