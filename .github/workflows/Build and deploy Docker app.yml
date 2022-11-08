@@ -9,7 +9,7 @@ on:
   
 env:
   APPNAME: AzureWebAppforContainers
-  APPLICATIONPATH: Application
+  APPLICATIONPATH: Application/aspnet-core-dotnet-core-net6
   HOSTINGPLAN: AzureWebAppforContainers
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
   REGISTRYSKU: "Standard"
