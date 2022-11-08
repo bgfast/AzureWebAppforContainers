@@ -52,13 +52,9 @@ jobs:
     - name: Restore
       run: dotnet restore ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj
 
-    ## SubscriptionKey
     - name: Build
       run: dotnet build ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-restore
 
-      ###########################################
-      # Upload Artifacts
-      ###########################################
     - name: Upload Build Artifacts-Website
       uses: actions/upload-artifact@v2
       with:
@@ -127,10 +123,17 @@ jobs:
       with:
         inlineScript: |
           #!/bin/bash
-          az group create --name ${{ env.Azure_Resource_GroupName }} --location ${{ inputs.resource-group-location }}
+          az group create --name ${{ env.Azure_Resource_GroupName }} --location ${{ env.Azure_Resource_GroupLocation }}
+
+    - name: Ensure Resource Group is UnLocked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
       # Deploy ARM Template using Bicep DSL
-    - name: Infrastructure
+    - name: Infrastructure Deploy
       id: Infra
       uses: azure/arm-deploy@v1
       continue-on-error: false
