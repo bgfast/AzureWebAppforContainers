@@ -22,7 +22,10 @@ env:
   APPINSIGHTSLOCATION: East US 2
   SUBSCRIPTIONID: f5e66d29-1a7f-4ee3-822e-74f644d3e665
   SKU: S1 Standard
-
+  dotnet_version: '6.x.x'
+  Azure_Resource_GroupName: 'rg-AzureWebAppforContainers'
+  Azure_Resource_GroupLocation: 'eastus2'
+  
 jobs:
   build:
     name: Build and push application to ACR
@@ -30,6 +33,14 @@ jobs:
     steps:
     - uses: actions/checkout@master
 
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.dotnet_version }}
+          
     - name: Azure authentication
       uses: azure/login@v1
       with:
@@ -43,41 +54,63 @@ jobs:
             dotnet test aspnet-core-dotnet-core.UnitTests/aspnet-core-dotnet-core.UnitTests.csproj  --verbosity normal
             popd
 
+      ###########################################
+      # Upload Artifacts
+      ###########################################
+    - name: Upload Build Artifacts-Website
+      uses: actions/upload-artifact@v2
+      with:
+        name: aspnet-core-dotnet-core
+        path: ${{ github.workspace }}/web
+
+    - name: Upload Infrastucture Files
+      uses: actions/upload-artifact@v2
+      with:
+        name: IaC
+        path: ${{ github.workspace }}/IaC/*.*
+          
     # Create Azure container registry
-    - uses: azure/arm-deploy@v1
-      id: createAcr
-      with:
-        subscriptionId: ${{ env.SUBSCRIPTIONID }}
-        resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./ArmTemplates/containerRegistry-template.json
-        parameters: registryName="${{ env.REGISTRYNAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+    #- uses: azure/arm-deploy@v1
+    #  id: createAcr
+    ##  with:
+    #    subscriptionId: ${{ env.SUBSCRIPTIONID }}
+    #    resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
+    #    template: ./ArmTemplates/containerRegistry-template.json
+    #    parameters: registryName="${{ env.REGISTRYNAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
 
-    - name: Fetch ACR credentials
-      id: acrCredentials
-      continue-on-error: false
-      run: |
-          echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username`"
-          echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
-          echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+    #- name: Fetch ACR credentials
+    #  id: acrCredentials
+    #  continue-on-error: false
+    #  run: |
+    #      echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username`"
+    #      echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+    #      echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
 
-    - name: ACR authentication
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ env.REGISTRYNAME }}.azurecr.io
-        username: ${{ steps.acrCredentials.outputs.acr_username }}
-        password: ${{ steps.acrCredentials.outputs.acr_password }}
+    #- name: ACR authentication
+    #  uses: azure/docker-login@v1
+    #  with:
+    #    login-server: ${{ env.REGISTRYNAME }}.azurecr.io
+    #    username: ${{ steps.acrCredentials.outputs.acr_username }}
+    #    password: ${{ steps.acrCredentials.outputs.acr_password }}
 
-    - name: Docker Build & Push to ACR
-      run: |
-        docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
-        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
-        #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
-        docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+    #- name: Docker Build & Push to ACR
+    #  run: |
+    #    docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
+    #    docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+    #    #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
+    #    docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
   deploy_infrastructure:
+    runs-on: ubuntu-latest
+    outputs:
+      output_apiServiceName: ${{ steps.Infra.outputs.out_apiServiceName }}
+      output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}
+      output_appInsightsApplicationId: ${{ steps.Infra.outputs.out_appInsightsApplicationId }}
+      output_appInsightsAPIApplicationId: ${{ steps.Infra.outputs.out_appInsightsAPIApplicationId }}
+      output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}
+
     name: Deploy Infrastructure
     needs: build
-    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
 
@@ -86,14 +119,52 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - uses: azure/arm-deploy@v1
-      id: deploy
+    - name: Ensure Resource Group Exists
+      uses: Azure/CLI@v1
+      continue-on-error: true
       with:
-        subscriptionId: ${{ env.SUBSCRIPTIONID }}
-        resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-        template: ./ArmTemplates/container-webapp-template.json
-        parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.APPINSIGHTSLOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+        inlineScript: |
+          #!/bin/bash
+          az group create --name ${{ env.Azure_Resource_GroupName }} --location ${{ inputs.resource-group-location }}
+
+
+    #- uses: azure/arm-deploy@v1
+    #  id: deploy
+    #  with:
+    #    subscriptionId: ${{ env.SUBSCRIPTIONID }}
+    #    resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
+    #    template: ./ArmTemplates/container-webapp-template.json
+    #    parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.APPINSIGHTSLOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
  
+       ###########################################
+      # Deploy ARM Template using Bicep DSL
+      ###########################################
+    - name: Infrastructure
+      id: Infra
+      uses: azure/arm-deploy@v1
+      continue-on-error: false
+      with:
+        resourceGroupName: ${{ env.Azure_Resource_GroupName }}
+        template: ./IaC/main-1.bicep
+        #parameters: ./IaC/main-1.params.json
+        deploymentMode: Incremental
+        failOnStdErr: false
+
+    - name: Ensure Resource Group is Locked
+      #if: contains(github.event_name, 'push')
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock create --lock-type CanNotDelete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }} --notes 'Prevent deletion of the resource group'
+
+    - name: DEBUG ONLY Display Output Variables
+      run: |
+         echo 'output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}'
+         echo 'output_appInsightsApplicationId: ${{ steps.Infra.outputs.out_appInsightsApplicationId }}'
+         echo 'output_appInsightsAPIApplicationId: ${{ steps.Infra.outputs.out_appInsightsAPIApplicationId }}'
+         echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
+
   deploy_application_to_webapp:
     name: Deploy App to Web App
     needs: deploy_infrastructure
