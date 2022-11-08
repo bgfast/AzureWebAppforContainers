@@ -1,11 +1,6 @@
-// @description('Specifies the name of the container app.')
-// param containerAppName string = 'containerapp-${uniqueString(resourceGroup().id)}'
-
-// @description('Specifies the name of the container app environment.')
-// param containerAppEnvName string = 'containerapp-env-${uniqueString(resourceGroup().id)}'
-
-// @description('Specifies the name of the log analytics workspace.')
-// param containerAppLogAnalyticsName string = 'containerapp-log-${uniqueString(resourceGroup().id)}'
+param containerAppName string
+param containerAppEnvName string
+param containerAppLogAnalyticsName string
 
 @description('Specifies the location for all resources.')
 @allowed([
@@ -38,7 +33,7 @@ param minReplicas int = 1
 @maxValue(25)
 param maxReplicas int = 3
 
-resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
+resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: containerAppLogAnalyticsName
   location: location
   properties: {
@@ -48,7 +43,7 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
   }
 }
 
-resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-01-01-preview' = {
+resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' = {
   name: containerAppEnvName
   location: location
   properties: {
@@ -62,9 +57,12 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-01-01-preview' 
   }
 }
 
-resource containerApp 'Microsoft.App/containerApps@2022-01-01-preview' = {
+resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
   name: containerAppName
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     managedEnvironmentId: containerAppEnv.id
     configuration: {
