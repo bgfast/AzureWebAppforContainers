@@ -30,8 +30,7 @@ env:
   
 jobs:
   build:
-    name: Build Application and Container #and push application to ACR
-    #needs: deploy_infrastructure
+    name: Build Application and Container
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -143,7 +142,7 @@ jobs:
       with:
         name: IaC
         path: ${{ github.workspace }}/IaC
-        
+
       # Deploy ARM Template using Bicep DSL
     - name: Infrastructure Deploy
       id: Infra
