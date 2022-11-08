@@ -10,15 +10,15 @@ on:
 env:
   APPNAME: AzureWebAppforContainers
   APPLICATIONPATH: Application/aspnet-core-dotnet-core-net6
-  HOSTINGPLAN: AzureWebAppforContainers
-  DOCKERFILEPATH: "Application/aspnet-core-dotnet-core"
+  #HOSTINGPLAN: AzureWebAppforContainers
+  DOCKERFILEPATH: "Application/aspnet-core-dotnet-core-net6"
   REGISTRYSKU: "Standard"
-  REGISTRYNAME: "azurewebappforcontainersacr"
+  #REGISTRYNAME: "azurewebappforcontainersacr"
   REGISTRYLOCATION: "East US 2"
   IMAGENAME: "azurewebappforcontainersedd3"
-  RESOURCEGROUPNAME: rg-AzureWebAppforContainers
-  LOCATION: East US 2
-  APPINSIGHTSLOCATION: East US 2
+  #RESOURCEGROUPNAME: rg-AzureWebAppforContainers
+  #LOCATION: East US 2
+  #APPINSIGHTSLOCATION: East US 2
   SUBSCRIPTIONID: f5e66d29-1a7f-4ee3-822e-74f644d3e665
   SKU: S1 Standard
   dotnet_version: '6.x.x'
@@ -68,6 +68,12 @@ jobs:
         name: IaC
         path: ${{ github.workspace }}/IaC/*.*
 
+    - name: Upload Docker File
+      uses: actions/upload-artifact@v3
+      with:
+        name: Web
+        path: ${{ github.workspace }}/Application/aspnet-core-dotnet-core-net6/Dockerfile
+
     #- name: Docker Build & Push to ACR
     # run: |
        #docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
@@ -113,6 +119,7 @@ jobs:
       output_appInsightsApplicationId: ${{ steps.Infra.outputs.out_appInsightsApplicationId }}
       output_appInsightsAPIApplicationId: ${{ steps.Infra.outputs.out_appInsightsAPIApplicationId }}
       output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}
+      output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}
 
     name: Deploy Infrastructure
     steps:
@@ -171,6 +178,81 @@ jobs:
          echo 'output_appInsightsAPIApplicationId: ${{ steps.Infra.outputs.out_appInsightsAPIApplicationId }}'
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
 
+  docker_build_pushtoacr:
+    name: Docker Build & Push to ACR
+    needs: deploy_infrastructure
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # - name: Setup .NET Core
+    #   uses: actions/setup-dotnet@v1
+    #   with:
+    #     dotnet-version: ${{ env.dotnet_version }}
+          
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # - name: Restore
+    #   run: dotnet restore ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj
+
+    # - name: Build
+    #   run: dotnet build ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-restore
+
+    # - name: Publish
+    #   run: dotnet publish ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output './web'
+
+    # - name: Upload Build Artifacts-Website
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: Web
+    #     path: ${{ github.workspace }}/web
+
+    # - name: Upload Infrastucture Files
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: IaC
+    #     path: ${{ github.workspace }}/IaC/*.*
+
+    - name: Docker Build & Push to ACR
+     run: |
+       docker login ${{ steps.Infra.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.Infra.outputs.output_acr_username }} --password ${{ steps.Infra.outputs.output_acr_pass }}
+       docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ steps.Infra.outputs.output_containerregistryName }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+
+    # Create Azure container registry
+    #- uses: azure/arm-deploy@v1
+    #  id: createAcr
+    ##  with:
+    #    subscriptionId: ${{ env.SUBSCRIPTIONID }}
+    #    resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
+    #    template: ./ArmTemplates/containerRegistry-template.json
+    #    parameters: registryName="${{ env.REGISTRYNAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+
+    #- name: Fetch ACR credentials
+    #  id: acrCredentials
+    #  continue-on-error: false
+    #  run: |
+    #      echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username`"
+    #      echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+    #      echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
+
+    #- name: ACR authentication
+    #  uses: azure/docker-login@v1
+    #  with:
+    #    login-server: ${{ env.REGISTRYNAME }}.azurecr.io
+    #    username: ${{ steps.acrCredentials.outputs.acr_username }}
+    #    password: ${{ steps.acrCredentials.outputs.acr_password }}
+
+    #- name: Docker Build & Push to ACR
+    #  run: |
+    #    docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
+    #    docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+    #    #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
+    #    docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+    
   deploy_application_to_webapp:
     name: Deploy App to Web App
     needs: deploy_infrastructure

@@ -114,3 +114,6 @@ module configsettingsmod './main-1-ConfigSettings.bicep' = {
 // Output Params used for IaC deployment in pipeline
 output out_webSiteName string = webSiteName
 output out_keyvaultName string = keyvaultName
+output out_containerregistryName string = containerregistryName
+output output_acr_username string = containerregistrymod.outputs.output_acr_username
+output output_acr_pass string = containerregistrymod.outputs.output_acr_pass
