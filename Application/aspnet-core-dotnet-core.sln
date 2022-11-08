@@ -3,16 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aspnet-core-dotnet-core.UnitTests", "aspnet-core-dotnet-core.UnitTests\aspnet-core-dotnet-core.UnitTests.csproj", "{DA840935-6753-4A08-9045-A82BDF6FAA95}"
-	ProjectSection(ProjectDependencies) = postProject
-		{5F53DF70-63C2-4ADE-80A4-1F942681DEC9} = {5F53DF70-63C2-4ADE-80A4-1F942681DEC9}
-		{D6902CA6-4C33-4EB0-95BB-F49E513B66A8} = {D6902CA6-4C33-4EB0-95BB-F49E513B66A8}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aspnet-core-dotnet-core.FunctionalTests", "aspnet-core-dotnet-core.FunctionalTests\aspnet-core-dotnet-core.FunctionalTests.csproj", "{D6902CA6-4C33-4EB0-95BB-F49E513B66A8}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "aspnet-core-dotnet-core", "aspnet-core-dotnet-core\aspnet-core-dotnet-core.csproj", "{5F53DF70-63C2-4ADE-80A4-1F942681DEC9}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aspnet-core-dotnet-core-net6", "aspnet-core-dotnet-core-net6\aspnet-core-dotnet-core-net6.csproj", "{60D2A351-3E21-437D-8D71-97C1A85193A6}"
 EndProject
 Global
@@ -21,18 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DA840935-6753-4A08-9045-A82BDF6FAA95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA840935-6753-4A08-9045-A82BDF6FAA95}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA840935-6753-4A08-9045-A82BDF6FAA95}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA840935-6753-4A08-9045-A82BDF6FAA95}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D6902CA6-4C33-4EB0-95BB-F49E513B66A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D6902CA6-4C33-4EB0-95BB-F49E513B66A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D6902CA6-4C33-4EB0-95BB-F49E513B66A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D6902CA6-4C33-4EB0-95BB-F49E513B66A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F53DF70-63C2-4ADE-80A4-1F942681DEC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F53DF70-63C2-4ADE-80A4-1F942681DEC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F53DF70-63C2-4ADE-80A4-1F942681DEC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F53DF70-63C2-4ADE-80A4-1F942681DEC9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{60D2A351-3E21-437D-8D71-97C1A85193A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{60D2A351-3E21-437D-8D71-97C1A85193A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60D2A351-3E21-437D-8D71-97C1A85193A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
