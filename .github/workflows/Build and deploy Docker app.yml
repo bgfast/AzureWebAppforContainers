@@ -16,7 +16,6 @@ env:
   REGISTRYNAME: "azurewebappforcontainersacr"
   REGISTRYLOCATION: "East US 2"
   IMAGENAME: "azurewebappforcontainersedd3"
-  #IMAGENAME: "azurewebappforcontainersedd3:latest"
   RESOURCEGROUPNAME: rg-AzureWebAppforContainers
   LOCATION: East US 2
   APPINSIGHTSLOCATION: East US 2
@@ -66,8 +65,8 @@ jobs:
         name: IaC
         path: ${{ github.workspace }}/IaC/*.*
 
-    - name: Docker Build & Push to ACR
-     run: |
+    #- name: Docker Build & Push to ACR
+    # run: |
        #docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
        #docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
