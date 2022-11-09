@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 
 # Copy the published web app
-COPY *.csproj ./
+COPY *aspnet-core-dotnet-core-net6.csproj ./
 RUN dotnet restore
 #COPY ["aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj", "aspnet-core-dotnet-core-net6/"]
 #RUN dotnet restore "aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj"
