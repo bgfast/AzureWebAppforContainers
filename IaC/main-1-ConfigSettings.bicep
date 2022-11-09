@@ -121,14 +121,14 @@ resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   }
 }
 
-resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  name: KV_acr_passName
-  parent: existing_keyvault
-  properties: {
-    contentType: 'text/plain'
-    value: acr_password
-  }
-}
+// resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+//   name: KV_acr_passName
+//   parent: existing_keyvault
+//   properties: {
+//     contentType: 'text/plain'
+//     value: acr_password
+//   }
+// }
 
 /////////////////////////////////////////////////
 // Add Settings for Web App
