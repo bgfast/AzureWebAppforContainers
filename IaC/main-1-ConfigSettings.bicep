@@ -115,17 +115,23 @@ resource secret0 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   name: 'Test'
   parent: existing_keyvault
   properties: {
+    attributes: {
+      enabled: true
+    }
     contentType: 'text/plain'
     value: 'Test'
   }
 }
 
 resource secret11 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  name: 'KV_acr_usernameName' //KV_acr_usernameName
+  name: KV_acr_usernameName //KV_acr_usernameName
   parent: existing_keyvault
   properties: {
+    attributes: {
+      enabled: true
+    }
     contentType: 'text/plain'
-    value: 'KV_acr_usernameName' //acr_username
+    value: KV_acr_usernameName //acr_username
   }
 }
 

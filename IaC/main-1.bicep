@@ -29,8 +29,9 @@ var defaultTags = {
 
 // KeyVault Secret Names
 // Note: Secret names can only contain alphanumeric characters and dashes!!!
-param KV_acr_usernameName string = 'XYZacr_username'
-param KV_acr_passName string = 'XYZacr_password'
+// Nooooooooooooooooooooooo!!! Underbars!!!!
+param KV_acr_usernameName string = 'acrusername'
+param KV_acr_passName string = 'acrpassword'
 
 // Create Application Insights
 module appinsightsmod './main-1-AppInsights.bicep' = {
