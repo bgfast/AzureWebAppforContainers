@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.12.40.16777",
-      "templateHash": "1846508496402109116"
+      "templateHash": "8256100060221604510"
     }
   },
   "parameters": {
@@ -491,7 +491,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "17424346285773562263"
+              "templateHash": "15984166876443999202"
             }
           },
           "parameters": {
@@ -546,6 +546,14 @@
             "acrLoginServer": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').loginServer]"
+            },
+            "output_acr_username": {
+              "type": "string",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').username]"
+            },
+            "output_acr_pass": {
+              "type": "string",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').passwords[0].value]"
             }
           }
         }
@@ -777,13 +785,13 @@
             "value": "[parameters('KV_acr_usernameName')]"
           },
           "KV_acr_usernameNameValue": {
-            "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', variables('containerregistryName')), '2022-02-01-preview').username]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_username.value]"
           },
           "KV_acr_passName": {
             "value": "[parameters('KV_acr_passName')]"
           },
           "KV_acr_passNameValue": {
-            "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', variables('containerregistryName')), '2022-02-01-preview').passwords[0].value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_pass.value]"
           },
           "containerregistryName": {
             "value": "[variables('containerregistryName')]"
@@ -796,7 +804,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "13469772999432294853"
+              "templateHash": "8333658154947499211"
             }
           },
           "parameters": {
@@ -902,10 +910,28 @@
             {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyvaultName'), 'Test')]",
+              "properties": {
+                "contentType": "text/plain",
+                "value": "Test"
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
               "name": "[format('{0}/{1}', parameters('keyvaultName'), parameters('KV_acr_usernameName'))]",
               "properties": {
                 "contentType": "text/plain",
-                "value": "[parameters('KV_acr_usernameNameValue')]"
+                "value": "KV_acr_usernameName"
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyvaultName'), parameters('KV_acr_passName'))]",
+              "properties": {
+                "contentType": "text/plain",
+                "value": "KV_acr_passName"
               }
             },
             {
@@ -929,6 +955,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'appinsightsdeploy')]",
+        "[resourceId('Microsoft.Resources/deployments', variables('containerregistryName'))]",
         "[resourceId('Microsoft.Resources/deployments', variables('keyvaultName'))]",
         "[resourceId('Microsoft.Resources/deployments', 'webappdeploy')]"
       ]

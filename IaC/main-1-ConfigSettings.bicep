@@ -1,6 +1,5 @@
 param keyvaultName string
 param webappName string
-param containerregistryName string
 param tenant string
 
 @secure()
@@ -105,14 +104,14 @@ resource keyvaultaccessmod 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01'
 /////////////////////////////////////////////////
 
 //Reference Existing resource
-resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
-  name: containerregistryName
-}
+// resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+//   name: containerregistryName
+// }
 
-var acr_username = existing_containerregistry.listCredentials().username
-var acr_password = existing_containerregistry.listCredentials().passwords[0].value
+// var acr_username = existing_containerregistry.listCredentials().username
+// var acr_password = existing_containerregistry.listCredentials().passwords[0].value
 
-resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+resource secret0 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   name: 'Test'
   parent: existing_keyvault
   properties: {
@@ -121,23 +120,23 @@ resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   }
 }
 
-// resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-//   name: KV_acr_usernameName
-//   parent: existing_keyvault
-//   properties: {
-//     contentType: 'text/plain'
-//     value: KV_acr_usernameNameValue
-//   }
-// }
+resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: KV_acr_usernameName
+  parent: existing_keyvault
+  properties: {
+    contentType: 'text/plain'
+    value: 'KV_acr_usernameName' //acr_username
+  }
+}
 
-// resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-//   name: KV_acr_passName
-//   parent: existing_keyvault
-//   properties: {
-//     contentType: 'text/plain'
-//     value: acr_password
-//   }
-// }
+resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: KV_acr_passName
+  parent: existing_keyvault
+  properties: {
+    contentType: 'text/plain'
+    value: 'KV_acr_passName' //acr_password
+  }
+}
 
 /////////////////////////////////////////////////
 // Add Settings for Web App
