@@ -23,7 +23,7 @@ env:
   SKU: S1 Standard
   
   dotnet_version: '6.x.x'
-  Azure_Resource_GroupName: 'rg-AzureWebAppforContainersApps'
+  Azure_Resource_GroupName: 'rg-AzureWebAppforContainerApps'
   Azure_Resource_GroupLocation: 'eastus2'
   CONFIGURATION: Release
   WORKING_DIRECTORY: .
