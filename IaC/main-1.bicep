@@ -15,6 +15,7 @@ var webAppPlanName = 'appplan-${uniqueString(resourceGroup().id)}'
 var webSiteName = 'app-${uniqueString(resourceGroup().id)}'
 var keyvaultName = 'kv-${uniqueString(resourceGroup().id)}'
 var containerregistryName = 'containerregistry${uniqueString(resourceGroup().id)}'
+var containerName = 'containername-${uniqueString(resourceGroup().id)}'
 var containerAppName = 'containerapp-${uniqueString(resourceGroup().id)}'
 var containerAppEnvName = 'containerapp-env-${uniqueString(resourceGroup().id)}'
 var containerAppLogAnalyticsName = 'containerapp-log-${uniqueString(resourceGroup().id)}'
@@ -125,6 +126,7 @@ module configsettingsmod './main-1-ConfigSettings.bicep' = {
 output out_webSiteName string = webSiteName
 output out_keyvaultName string = keyvaultName
 output out_containerregistryName string = containerregistryName
+output out_containerName string = containerName
 
 // output output_acr_username string = containerregistrymod.outputs.output_acr_username
 // #disable-next-line outputs-should-not-contain-secrets
