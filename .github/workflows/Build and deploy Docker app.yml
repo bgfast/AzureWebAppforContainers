@@ -21,8 +21,9 @@ env:
   #APPINSIGHTSLOCATION: East US 2
   SUBSCRIPTIONID: f5e66d29-1a7f-4ee3-822e-74f644d3e665
   SKU: S1 Standard
+  
   dotnet_version: '6.x.x'
-  Azure_Resource_GroupName: 'rg-AzureWebAppforContainers'
+  Azure_Resource_GroupName: 'rg-AzureWebAppforContainersApps'
   Azure_Resource_GroupLocation: 'eastus2'
   CONFIGURATION: Release
   WORKING_DIRECTORY: .
