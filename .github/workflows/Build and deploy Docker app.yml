@@ -8,19 +8,19 @@ on:
   workflow_dispatch: 
   
 env:
-  APPNAME: AzureWebAppforContainers
-  APPLICATIONPATH: Application/aspnet-core-dotnet-core-net6
+  APPNAME: AzureWebAppforContainerApps
+  #APPLICATIONPATH: Application/aspnet-core-dotnet-core-net6
   #HOSTINGPLAN: AzureWebAppforContainers
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core-net6"
-  REGISTRYSKU: "Standard"
+  #REGISTRYSKU: "Standard"
   #REGISTRYNAME: "azurewebappforcontainersacr"
   #REGISTRYLOCATION: "East US 2"
   #IMAGENAME: "azurewebappforcontainersedd3"
-  #RESOURCEGROUPNAME: rg-AzureWebAppforContainers
+  #RESOURCEGROUPNAME: rg-AzureWebAppforContainerApps
   #LOCATION: East US 2
   #APPINSIGHTSLOCATION: East US 2
-  SUBSCRIPTIONID: f5e66d29-1a7f-4ee3-822e-74f644d3e665
-  SKU: S1 Standard
+  #SUBSCRIPTIONID: f5e66d29-1a7f-4ee3-822e-74f644d3e665
+  #SKU: S1 Standard
   
   dotnet_version: '6.x.x'
   Azure_Resource_GroupName: 'rg-AzureWebAppforContainerApps'
@@ -298,7 +298,7 @@ jobs:
     #    docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
     
   deploy_application_to_webapp:
-    name: Deploy App to Web App
+    name: Deploy Container to Web App
     needs: docker_build_pushtoacr
     runs-on: ubuntu-latest
     steps:
@@ -310,20 +310,12 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    #- uses: azure/arm-deploy@v1
-    #  id: deploy
-    #  with:
-    #    subscriptionId: ${{ env.SUBSCRIPTIONID }}
-    #    resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-    #    template: ./ArmTemplates/container-webapp-template.json
-    #    parameters: webAppName="${{ env.APPNAME }}" hostingPlanName="${{ env.HOSTINGPLAN }}" sku="${{ env.SKU }}" appInsightsLocation="${{ env.APPINSIGHTSLOCATION }}" registryName="${{ env.REGISTRYNAME }}" imageName="${{ env.IMAGENAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
+    - name: 'Deploy Container'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ env.APPNAME }} 
+        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
-    # - name: 'Deploy to Azure Web App for Container'
-    #   uses: azure/webapps-deploy@v2
-    #   with: 
-    #     app-name: ${{ env.APPNAME }} 
-    #     images: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
-        
   deploy_application_to_containerapp:
     name: Deploy App to Container App
     needs: docker_build_pushtoacr
@@ -337,27 +329,21 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    #- name: Get ACR credentials
-    #  id: getACRCred
-    #  run: |
-    #       echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username | xargs`"
-    #       echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`"
-    #       echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value | xargs`" 
-
-    # - name: Deploy Azure Container App Review Revisions
-    #   uses: Azure/aca-review-apps@v0.2.1
-    #   with:
-    #     # Name of the Resource Group in which the Container App will be created
-    #     resource-group: ${{ env.RESOURCEGROUPNAME }}
-    #     # Name of the Container App
-    #     name: 'azurecontainerapp-rpagels'
-    #     # Name of Container Image. If the `mode` input is `deactivate-revision`, this input is ignored.
-    #     # image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
-    #     image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
-    #     # Suffixes for New Revision or Target Revision of deactivation. If the `mode` input is `deactivate-revision`, this input needs to be set.
-    #     revision-name-suffix: 'staging'
-    #     # Enable Deactivation-Revision Mode of this action. `true` or `false`. Default value is `false`
-    #     #deactivate-revision-mode: # optional
+    - name: Deploy Azure Container App Review Revisions
+      uses: Azure/aca-review-apps@v0.2.1
+      with:
+        # Name of the Resource Group in which the Container App will be created
+        resource-group: ${{ env.Azure_Resource_GroupName }}
+        # Name of the Container App
+        name: 'azurecontainerapp-rpagels'
+        # Name of Container Image. If the `mode` input is `deactivate-revision`, this input is ignored.
+        # image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        #image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
+        image: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:lastest
+        # Suffixes for New Revision or Target Revision of deactivation. If the `mode` input is `deactivate-revision`, this input needs to be set.
+        revision-name-suffix: 'staging'
+        # Enable Deactivation-Revision Mode of this action. `true` or `false`. Default value is `false`
+        #deactivate-revision-mode: # optional
     
 
   # FunctionalTests:
