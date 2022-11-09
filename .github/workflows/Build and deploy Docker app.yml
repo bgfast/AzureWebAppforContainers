@@ -229,39 +229,39 @@ jobs:
     #    inlineScript: |
     #      result=$(az keyvault secret show --name "acrpassword" --vault-name ${{ steps.Infra.outputs.out_keyvaultName }} --query "value")
 
-      - name: 'Get Key Vault Value'
-        id: GetKVACRUserName
-        uses: Azure/CLI@v1
-        continue-on-error: true
-        with:
-          inlineScript: |
-            az config set extension.use_dynamic_install=yes_without_prompt
-            result=$(az keyvault secret show \
-                        --name "acrusername" \
-                        --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
-                        --query "value" --output tsv)
-            echo "::set-output name=acrusername::$result"
+    - name: 'Get Key Vault Value'
+      id: GetKVACRUserName
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          result=$(az keyvault secret show \
+                      --name "acrusername" \
+                      --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+                      --query "value" --output tsv)
+          echo "::set-output name=acrusername::$result"
 
-      - name: DEBUG ONLY Display Key Vault Secret
-        run: |
-           echo 'acrusername: ${{ steps.GetKVACRUserName.outputs.acrusername }}'            
+    - name: DEBUG ONLY Display Key Vault Secret
+      run: |
+          echo 'acrusername: ${{ steps.GetKVACRUserName.outputs.acrusername }}'            
 
-      - name: 'Get Key Vault Value'
-        id: GetKVACRUserPassword
-        uses: Azure/CLI@v1
-        continue-on-error: true
-        with:
-          inlineScript: |
-            az config set extension.use_dynamic_install=yes_without_prompt
-            result=$(az keyvault secret show \
-                        --name "acrpassword" \
-                        --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
-                        --query "value" --output tsv)
-            echo "::set-output name=acruserpassword::$result"
+    - name: 'Get Key Vault Value'
+      id: GetKVACRUserPassword
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          result=$(az keyvault secret show \
+                      --name "acrpassword" \
+                      --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+                      --query "value" --output tsv)
+          echo "::set-output name=acruserpassword::$result"
 
-      - name: DEBUG ONLY Display Key Vault Secret
-        run: |
-           echo 'acruserpassword: ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}'    
+    - name: DEBUG ONLY Display Key Vault Secret
+      run: |
+          echo 'acruserpassword: ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}'    
 
     #- name: Docker Build & Push to ACR
     #  run: |
