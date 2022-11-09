@@ -225,10 +225,15 @@ jobs:
                       --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
                       --query "value" --output tsv)
           echo "::set-output name=acrusername::$result"
+          result=$(az keyvault secret show \
+            --name "acrpassword" \
+            --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+            --query "value" --output tsv)
+          echo "::set-output name=acruserpassword::$result"
 
-    - name: DEBUG ONLY Display Key Vault Secret
-      run: |
-          echo 'acrusername: ${{ steps.GetKVACRUserName.outputs.acrusername }}'            
+    #- name: DEBUG ONLY Display Key Vault Secret
+    #  run: |
+    #      echo 'acrusername: ${{ steps.GetKVACRUserName.outputs.acrusername }}'            
 
     - name: 'Get Key Vault Value'
       id: GetKVACRUserPassword
@@ -243,14 +248,14 @@ jobs:
                       --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
 
-    - name: DEBUG ONLY Display Key Vault Secret
-      run: |
-          echo 'acruserpassword: ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}'    
+    #- name: DEBUG ONLY Display Key Vault Secret
+    #  run: |
+    #      echo 'acruserpassword: ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}'    
 
     - name: Docker Build & Push to ACR
       run: |
-        docker login ${{ steps.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRUserName.outputs.acrusername }} --password ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}
-        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ steps.Infra.outputs.output_containerregistryName }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+        docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRUserName.outputs.acrusername }} --password ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}
+        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
     # Create Azure container registry
     #- uses: azure/arm-deploy@v1
