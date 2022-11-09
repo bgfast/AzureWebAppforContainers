@@ -29,10 +29,9 @@ env:
   
 jobs:
   build:
-    name: Build Application and Container
+    name: Build Application
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
 
     - name: Checkout
       uses: actions/checkout@v3
@@ -121,7 +120,7 @@ jobs:
       output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}
       output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}
       output_acr_username: ${{ steps.Infra.outputs.out_acr_username }}
-      output_acr_pass: ${{ steps.Infra.outputs.out_acr_pass }}
+      output_acr_password: ${{ steps.Infra.outputs.out_acr_password }}
 
     name: Deploy Infrastructure
     steps:
@@ -182,7 +181,7 @@ jobs:
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
          echo 'output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}'
          echo 'output_acr_username: ${{ steps.Infra.outputs.out_acr_username }}'
-         echo 'output_acr_pass: ${{ steps.Infra.outputs.out_acr_pass }}'
+         echo 'output_acr_pass: ${{ steps.Infra.outputs.out_acr_password }}'
 
   docker_build_pushtoacr:
     runs-on: ubuntu-latest
