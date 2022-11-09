@@ -249,7 +249,7 @@ jobs:
 
     - name: Docker Build & Push to ACR
       run: |
-        docker login ${{ steps.Infra.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRUserName.outputs.acrusername }} --password ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}
+        docker login ${{ steps.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRUserName.outputs.acrusername }} --password ${{ steps.GetKVACRUserPassword.outputs.acruserpassword }}
         docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ steps.Infra.outputs.output_containerregistryName }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
     # Create Azure container registry
