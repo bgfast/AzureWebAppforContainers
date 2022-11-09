@@ -29,7 +29,7 @@ var defaultTags = {
 
 // KeyVault Secret Names
 // Note: Secret names can only contain alphanumeric characters and dashes!!!
-// Nooooooooooooooooooooooo!!! Underbars!!!!
+// Warning: No! No! No! Underbars!!!!
 param KV_acr_usernameName string = 'acrusername'
 param KV_acr_passName string = 'acrpassword'
 
