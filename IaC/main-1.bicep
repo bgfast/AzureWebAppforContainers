@@ -109,10 +109,10 @@ module configsettingsmod './main-1-ConfigSettings.bicep' = {
     appInsightsConnectionString: appinsightsmod.outputs.out_appInsightsConnectionString
     ADOServiceprincipalObjectId: ADOServiceprincipalObjectId
     AzObjectIdPagels: AzObjectIdPagels
-    KV_acr_usernameName: KV_acr_usernameName
-    KV_acr_usernameNameValue: containerregistrymod.outputs.output_acr_username
-    KV_acr_passName: KV_acr_passName
-    KV_acr_passNameValue: containerregistrymod.outputs.output_acr_password
+    // KV_acr_usernameName: KV_acr_usernameName
+    // KV_acr_usernameNameValue: containerregistrymod.outputs.output_acr_username
+    // KV_acr_passName: KV_acr_passName
+    // KV_acr_passNameValue: containerregistrymod.outputs.output_acr_password
     }
     dependsOn:  [
      keyvaultmod
