@@ -92,7 +92,7 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
 //var randyPagelsRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'rpagels@microsoft.com') // b6be0700-1fda-4f88-bf20-1aa508a91f73
 
 // Object Id of Service Principal "AzureWebAppforContainerApps_FullAccess"
-param ADOServiceprincipalObjectId string = 'e8d859ef-4bd1-47bb-a5e9-948a31039294'
+param ADOServiceprincipalObjectId string = '653d7ee3-5006-4eb0-be45-4bf1ace4d232'
 
 // Application Id of Service Principal "RPagels" Alias.
 param AzObjectIdPagels string = 'b6be0700-1fda-4f88-bf20-1aa508a91f73'
