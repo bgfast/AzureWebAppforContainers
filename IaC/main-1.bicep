@@ -91,8 +91,8 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
 // This is NOT supported. Look up Object ID for Service Principal
 //var randyPagelsRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'rpagels@microsoft.com') // b6be0700-1fda-4f88-bf20-1aa508a91f73
 
-// Object Id of Service Principal "RPagels-AzureWebAppforContainers-Full"
-param ADOServiceprincipalObjectId string = '38372314-e1c9-455d-a11e-3edb60a46687'
+// Object Id of Service Principal "AzureWebAppforContainerApps_FullAccess"
+param ADOServiceprincipalObjectId string = 'e8d859ef-4bd1-47bb-a5e9-948a31039294'
 
 // Application Id of Service Principal "RPagels" Alias.
 param AzObjectIdPagels string = 'b6be0700-1fda-4f88-bf20-1aa508a91f73'
