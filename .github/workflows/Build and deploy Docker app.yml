@@ -213,22 +213,6 @@ jobs:
     #     name: IaC
     #     path: ${{ github.workspace }}/IaC/*.*
 
-    - name: Get Azure Keyvault Values
-      id: KeyVaultValue_ACRUserName
-      uses: azure/CLI@v1
-      with:
-        #azcliversion: 2.30.0
-        inlineScript: |
-          result=$(az keyvault secret show --name "acrusername" --vault-name ${{ steps.Infra.outputs.out_keyvaultName }} --query "value")
-
-    #- name: Get Azure Keyvault Values
-    #  id: KeyVaultValue_ACRPassword
-    #  uses: azure/CLI@v1
-    #  with:
-    #    #azcliversion: 2.30.0
-    #    inlineScript: |
-    #      result=$(az keyvault secret show --name "acrpassword" --vault-name ${{ steps.Infra.outputs.out_keyvaultName }} --query "value")
-
     - name: 'Get Key Vault Value'
       id: GetKVACRUserName
       uses: Azure/CLI@v1
