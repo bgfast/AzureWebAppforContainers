@@ -8,7 +8,7 @@ on:
   workflow_dispatch: 
   
 env:
-  APPNAME: AzureWebAppforContainerApps
+  #APPNAME: AzureWebAppforContainerApps
   #APPLICATIONPATH: Application/aspnet-core-dotnet-core-net6
   #HOSTINGPLAN: AzureWebAppforContainers
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core-net6"
@@ -313,7 +313,7 @@ jobs:
     - name: 'Deploy Container'
       uses: azure/webapps-deploy@v2
       with: 
-        app-name: ${{ env.APPNAME }} 
+        app-name: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}
         images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
   deploy_application_to_containerapp:
