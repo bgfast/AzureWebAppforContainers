@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.12.40.16777",
-      "templateHash": "10803039983611512642"
+      "templateHash": "1846508496402109116"
     }
   },
   "parameters": {
@@ -35,7 +35,7 @@
     },
     "ADOServiceprincipalObjectId": {
       "type": "string",
-      "defaultValue": "38372314-e1c9-455d-a11e-3edb60a46687"
+      "defaultValue": "653d7ee3-5006-4eb0-be45-4bf1ace4d232"
     },
     "AzObjectIdPagels": {
       "type": "string",
@@ -491,7 +491,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "6829185194613098990"
+              "templateHash": "17424346285773562263"
             }
           },
           "parameters": {
@@ -510,7 +510,7 @@
             },
             "acrSku": {
               "type": "string",
-              "defaultValue": "Basic",
+              "defaultValue": "Standard",
               "metadata": {
                 "description": "Tier of your Azure Container Registry."
               },
@@ -546,14 +546,6 @@
             "acrLoginServer": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').loginServer]"
-            },
-            "output_acr_username": {
-              "type": "string",
-              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').username]"
-            },
-            "output_acr_pass": {
-              "type": "string",
-              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').passwords[0].value]"
             }
           }
         }
@@ -785,13 +777,16 @@
             "value": "[parameters('KV_acr_usernameName')]"
           },
           "KV_acr_usernameNameValue": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_pass.value]"
+            "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', variables('containerregistryName')), '2022-02-01-preview').username]"
           },
           "KV_acr_passName": {
             "value": "[parameters('KV_acr_passName')]"
           },
           "KV_acr_passNameValue": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_username.value]"
+            "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', variables('containerregistryName')), '2022-02-01-preview').passwords[0].value]"
+          },
+          "containerregistryName": {
+            "value": "[variables('containerregistryName')]"
           }
         },
         "template": {
@@ -801,7 +796,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "17036807044701881261"
+              "templateHash": "13469772999432294853"
             }
           },
           "parameters": {
@@ -809,6 +804,9 @@
               "type": "string"
             },
             "webappName": {
+              "type": "string"
+            },
+            "containerregistryName": {
               "type": "string"
             },
             "tenant": {
@@ -911,15 +909,6 @@
               }
             },
             {
-              "type": "Microsoft.KeyVault/vaults/secrets",
-              "apiVersion": "2022-07-01",
-              "name": "[format('{0}/{1}', parameters('keyvaultName'), parameters('KV_acr_passName'))]",
-              "properties": {
-                "contentType": "text/plain",
-                "value": "[parameters('KV_acr_passNameValue')]"
-              }
-            },
-            {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2022-03-01",
               "name": "[format('{0}/{1}', parameters('webappName'), 'appsettings')]",
@@ -940,7 +929,6 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'appinsightsdeploy')]",
-        "[resourceId('Microsoft.Resources/deployments', variables('containerregistryName'))]",
         "[resourceId('Microsoft.Resources/deployments', variables('keyvaultName'))]",
         "[resourceId('Microsoft.Resources/deployments', 'webappdeploy')]"
       ]
@@ -958,14 +946,6 @@
     "out_containerregistryName": {
       "type": "string",
       "value": "[variables('containerregistryName')]"
-    },
-    "output_acr_username": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_username.value]"
-    },
-    "output_acr_pass": {
-      "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_pass.value]"
     }
   }
 }

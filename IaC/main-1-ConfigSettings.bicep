@@ -18,12 +18,12 @@ param AzObjectIdPagels string
 ////////////////////////////////////////////////////////////////
 
 param KV_acr_usernameName string
-// @secure()
-// param KV_acr_usernameNameValue string
+@secure()
+param KV_acr_usernameNameValue string
 
 param KV_acr_passName string
-// @secure()
-// param KV_acr_passNameValue string
+@secure()
+param KV_acr_passNameValue string
 
 // Application Insights
 param appInsightsInstrumentationKey string
@@ -105,21 +105,21 @@ resource keyvaultaccessmod 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01'
 /////////////////////////////////////////////////
 
 // Reference Existing resource
-resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
-  name: containerregistryName
-}
-
-var acr_username = existing_containerregistry.listCredentials().username
-var acr_password = existing_containerregistry.listCredentials().passwords[0].value
-
-// resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-//   name: KV_acr_usernameName
-//   parent: existing_keyvault
-//   properties: {
-//     contentType: 'text/plain'
-//     value: acr_username
-//   }
+// resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+//   name: containerregistryName
 // }
+
+// var acr_username = existing_containerregistry.listCredentials().username
+// var acr_password = existing_containerregistry.listCredentials().passwords[0].value
+
+resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: KV_acr_usernameName
+  parent: existing_keyvault
+  properties: {
+    contentType: 'text/plain'
+    value: KV_acr_usernameNameValue
+  }
+}
 
 // resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
 //   name: KV_acr_passName

@@ -114,14 +114,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     outputs:
-      output_apiServiceName: ${{ steps.Infra.outputs.out_apiServiceName }}
       output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}
-      output_appInsightsApplicationId: ${{ steps.Infra.outputs.out_appInsightsApplicationId }}
-      output_appInsightsAPIApplicationId: ${{ steps.Infra.outputs.out_appInsightsAPIApplicationId }}
       output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}
       output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}
-      # output_acr_username: ${{ steps.Infra.outputs.out_acr_username }}
-      # output_acr_password: ${{ steps.Infra.outputs.out_acr_password }}
 
     name: Deploy Infrastructure
     steps:
@@ -175,14 +170,8 @@ jobs:
 
     - name: DEBUG ONLY Display Output Variables
       run: |
-         echo 'output_apiServiceName: ${{ steps.Infra.outputs.out_apiServiceName }}'
          echo 'output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}'
-         echo 'output_appInsightsApplicationId: ${{ steps.Infra.outputs.out_appInsightsApplicationId }}'
-         echo 'output_appInsightsAPIApplicationId: ${{ steps.Infra.outputs.out_appInsightsAPIApplicationId }}'
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
-         echo 'output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}'
-        #  echo 'output_acr_username: ${{ steps.Infra.outputs.out_acr_username }}'
-        #  echo 'output_acr_pass: ${{ steps.Infra.outputs.out_acr_password }}'
 
   docker_build_pushtoacr:
     runs-on: ubuntu-latest

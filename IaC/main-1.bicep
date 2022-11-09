@@ -97,6 +97,14 @@ param ADOServiceprincipalObjectId string = '653d7ee3-5006-4eb0-be45-4bf1ace4d232
 // Application Id of Service Principal "RPagels" Alias.
 param AzObjectIdPagels string = 'b6be0700-1fda-4f88-bf20-1aa508a91f73'
 
+// Reference Existing resource
+resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+  name: containerregistryName
+}
+
+var acr_username = existing_containerregistry.listCredentials().username
+var acr_password = existing_containerregistry.listCredentials().passwords[0].value
+
  // Create Configuration Entries
 module configsettingsmod './main-1-ConfigSettings.bicep' = {
   name: 'configSettings'
@@ -110,9 +118,9 @@ module configsettingsmod './main-1-ConfigSettings.bicep' = {
     ADOServiceprincipalObjectId: ADOServiceprincipalObjectId
     AzObjectIdPagels: AzObjectIdPagels
     KV_acr_usernameName: KV_acr_usernameName
-    // KV_acr_usernameNameValue: containerregistrymod.outputs.output_acr_username
+    KV_acr_usernameNameValue: acr_username
     KV_acr_passName: KV_acr_passName
-    // KV_acr_passNameValue: containerregistrymod.outputs.output_acr_password
+    KV_acr_passNameValue: acr_password
     containerregistryName: containerregistryName
     }
     dependsOn:  [
