@@ -74,6 +74,12 @@ jobs:
         name: Web
         path: ${{ github.workspace }}/Application/aspnet-core-dotnet-core-net6/Dockerfile
 
+    - name: Upload Docker File
+      uses: actions/upload-artifact@v3
+      with:
+        name: Web
+        path: ${{ github.workspace }}/Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj
+
     #- name: Docker Build & Push to ACR
     # run: |
        #docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
