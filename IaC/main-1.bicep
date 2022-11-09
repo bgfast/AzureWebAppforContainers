@@ -126,6 +126,7 @@ module configsettingsmod './main-1-ConfigSettings.bicep' = {
 output out_webSiteName string = webSiteName
 output out_keyvaultName string = keyvaultName
 output out_containerregistryName string = containerregistryName
+output out_containerAppName string = containerAppName
 output out_containerName string = containerName
 
 // output output_acr_username string = containerregistrymod.outputs.output_acr_username
