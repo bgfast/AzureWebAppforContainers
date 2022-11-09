@@ -31,11 +31,11 @@ resource containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-pr
   }
 }
 
-var acr_username = containerregistry.listCredentials().username
-var acr_password = containerregistry.listCredentials().passwords[0].value
+//var acr_username = containerregistry.listCredentials().username
+//var acr_password = containerregistry.listCredentials().passwords[0].value
 
 output acrLoginServer string = containerregistry.properties.loginServer
-output output_acr_username string = acr_username
+//output output_acr_username string = acr_username
 
 #disable-next-line outputs-should-not-contain-secrets
-output output_acr_password string = acr_password
+//output output_acr_password string = acr_password

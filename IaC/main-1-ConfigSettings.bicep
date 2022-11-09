@@ -1,5 +1,6 @@
 param keyvaultName string
 param webappName string
+param containerregistryName string
 param tenant string
 
 @secure()
@@ -16,11 +17,11 @@ param AzObjectIdPagels string
 // TEMP ONLY!!!  Can remove once system up an running!
 ////////////////////////////////////////////////////////////////
 
-// param KV_acr_usernameName string
+param KV_acr_usernameName string
 // @secure()
 // param KV_acr_usernameNameValue string
 
-// param KV_acr_passName string
+param KV_acr_passName string
 // @secure()
 // param KV_acr_passNameValue string
 
@@ -99,23 +100,35 @@ resource keyvaultaccessmod 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01'
   }
 }
 
-// resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-//   name: KV_acr_usernameName
-//   parent: existing_keyvault
-//   properties: {
-//     contentType: 'text/plain'
-//     value: KV_acr_usernameNameValue
-//   }
-// }
+/////////////////////////////////////////////////
+// Add Settings for Container Registry
+/////////////////////////////////////////////////
 
-// resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-//   name: KV_acr_passName
-//   parent: existing_keyvault
-//   properties: {
-//     contentType: 'text/plain'
-//     value: KV_acr_passNameValue
-//   }
-// }
+// Reference Existing resource
+resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+  name: containerregistryName
+}
+
+var acr_username = existing_containerregistry.listCredentials().username
+var acr_password = existing_containerregistry.listCredentials().passwords[0].value
+
+resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: KV_acr_usernameName
+  parent: existing_keyvault
+  properties: {
+    contentType: 'text/plain'
+    value: acr_username
+  }
+}
+
+resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: KV_acr_passName
+  parent: existing_keyvault
+  properties: {
+    contentType: 'text/plain'
+    value: acr_password
+  }
+}
 
 /////////////////////////////////////////////////
 // Add Settings for Web App
