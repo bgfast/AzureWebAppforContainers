@@ -7,14 +7,18 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
-COPY ["aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj", "aspnet-core-dotnet-core-net6/"]
-RUN dotnet restore "aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj"
-COPY . .
-WORKDIR "/src/aspnet-core-dotnet-core-net6"
-RUN dotnet build "aspnet-core-dotnet-core-net6.csproj" -c Release -o /app/build
 
-FROM build AS publish
-RUN dotnet publish "aspnet-core-dotnet-core-net6.csproj" -c Release -o /app/publish /p:UseAppHost=false
+# Copy the published web app
+COPY *.csproj ./
+RUN dotnet restore
+#COPY ["aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj", "aspnet-core-dotnet-core-net6/"]
+#RUN dotnet restore "aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj"
+COPY . ./
+#WORKDIR "/src/aspnet-core-dotnet-core-net6"
+#RUN dotnet build "aspnet-core-dotnet-core-net6.csproj" -c Release -o /app/build
+
+#FROM build AS publish
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
