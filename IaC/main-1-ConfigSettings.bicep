@@ -120,8 +120,8 @@ resource secret0 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   }
 }
 
-resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  name: KV_acr_usernameName
+resource secret11 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: 'KV_acr_usernameName' //KV_acr_usernameName
   parent: existing_keyvault
   properties: {
     contentType: 'text/plain'
@@ -129,14 +129,23 @@ resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   }
 }
 
-resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  name: KV_acr_passName
-  parent: existing_keyvault
-  properties: {
-    contentType: 'text/plain'
-    value: 'KV_acr_passName' //acr_password
-  }
-}
+// resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+//   name: KV_acr_usernameName
+//   parent: existing_keyvault
+//   properties: {
+//     contentType: 'text/plain'
+//     value: 'KV_acr_usernameName' //acr_username
+//   }
+// }
+
+// resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+//   name: KV_acr_passName
+//   parent: existing_keyvault
+//   properties: {
+//     contentType: 'text/plain'
+//     value: 'KV_acr_passName' //acr_password
+//   }
+// }
 
 /////////////////////////////////////////////////
 // Add Settings for Web App
