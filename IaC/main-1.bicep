@@ -110,9 +110,9 @@ module configsettingsmod './main-1-ConfigSettings.bicep' = {
     ADOServiceprincipalObjectId: ADOServiceprincipalObjectId
     AzObjectIdPagels: AzObjectIdPagels
     KV_acr_usernameName: KV_acr_usernameName
-    KV_acr_usernameNameValue: containerregistrymod.outputs.output_acr_pass
+    KV_acr_usernameNameValue: containerregistrymod.outputs.output_acr_username
     KV_acr_passName: KV_acr_passName
-    KV_acr_passNameValue: containerregistrymod.outputs.output_acr_username
+    KV_acr_passNameValue: containerregistrymod.outputs.output_acr_password
     }
     dependsOn:  [
      keyvaultmod
@@ -125,4 +125,5 @@ output out_webSiteName string = webSiteName
 output out_keyvaultName string = keyvaultName
 output out_containerregistryName string = containerregistryName
 output output_acr_username string = containerregistrymod.outputs.output_acr_username
-output output_acr_pass string = containerregistrymod.outputs.output_acr_pass
+#disable-next-line outputs-should-not-contain-secrets
+output output_acr_password string = containerregistrymod.outputs.output_acr_password
