@@ -112,14 +112,14 @@ resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022
 var acr_username = existing_containerregistry.listCredentials().username
 var acr_password = existing_containerregistry.listCredentials().passwords[0].value
 
-resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  name: KV_acr_usernameName
-  parent: existing_keyvault
-  properties: {
-    contentType: 'text/plain'
-    value: acr_username
-  }
-}
+// resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+//   name: KV_acr_usernameName
+//   parent: existing_keyvault
+//   properties: {
+//     contentType: 'text/plain'
+//     value: acr_username
+//   }
+// }
 
 // resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
 //   name: KV_acr_passName
