@@ -16,6 +16,14 @@ param AzObjectIdPagels string
 // TEMP ONLY!!!  Can remove once system up an running!
 ////////////////////////////////////////////////////////////////
 
+param KV_acr_usernameName string
+@secure()
+param KV_acr_usernameNameValue string
+
+param KV_acr_passName string
+@secure()
+param KV_acr_passNameValue string
+
 // Application Insights
 param appInsightsInstrumentationKey string
 param appInsightsConnectionString string
@@ -91,23 +99,23 @@ resource keyvaultaccessmod 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01'
   }
 }
 
-// resource secret11 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-//   name: KV_CritWatcherSignalRConnectorURLName
-//   parent: existing_keyvault
-//   properties: {
-//     contentType: 'text/plain'
-//     value: KV_CritWatcherSignalRConnectorURLNameValue
-//   }
-// }
+resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: KV_acr_usernameName
+  parent: existing_keyvault
+  properties: {
+    contentType: 'text/plain'
+    value: KV_acr_usernameNameValue
+  }
+}
 
-// resource secret12 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-//   name: KV_SignalR_ConnectionStringName
-//   parent: existing_keyvault
-//   properties: {
-//     contentType: 'text/plain'
-//     value: KV_SignalR_ConnectionStringNameValue
-//   }
-// }
+resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+  name: KV_acr_passName
+  parent: existing_keyvault
+  properties: {
+    contentType: 'text/plain'
+    value: KV_acr_passNameValue
+  }
+}
 
 /////////////////////////////////////////////////
 // Add Settings for Web App

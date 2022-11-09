@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.12.40.16777",
-      "templateHash": "12412341953116176663"
+      "templateHash": "10803039983611512642"
     }
   },
   "parameters": {
@@ -25,6 +25,14 @@
       "type": "string",
       "defaultValue": "rpagels"
     },
+    "KV_acr_usernameName": {
+      "type": "string",
+      "defaultValue": "acr_username"
+    },
+    "KV_acr_passName": {
+      "type": "string",
+      "defaultValue": "acr_password"
+    },
     "ADOServiceprincipalObjectId": {
       "type": "string",
       "defaultValue": "38372314-e1c9-455d-a11e-3edb60a46687"
@@ -41,7 +49,7 @@
     "webAppPlanName": "[format('appplan-{0}', uniqueString(resourceGroup().id))]",
     "webSiteName": "[format('app-{0}', uniqueString(resourceGroup().id))]",
     "keyvaultName": "[format('kv-{0}', uniqueString(resourceGroup().id))]",
-    "containerregistryName": "[format('containerregistry-{0}', uniqueString(resourceGroup().id))]",
+    "containerregistryName": "[format('containerregistry{0}', uniqueString(resourceGroup().id))]",
     "containerAppName": "[format('containerapp-{0}', uniqueString(resourceGroup().id))]",
     "containerAppEnvName": "[format('containerapp-env-{0}', uniqueString(resourceGroup().id))]",
     "containerAppLogAnalyticsName": "[format('containerapp-log-{0}', uniqueString(resourceGroup().id))]",
@@ -241,7 +249,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "7886169803414441486"
+              "templateHash": "1090814058052798640"
             }
           },
           "parameters": {
@@ -299,32 +307,6 @@
                 }
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('webAppPlanName'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Web/sites/slots",
-              "apiVersion": "2022-03-01",
-              "name": "[format('{0}/{1}', parameters('webSiteName'), 'dev')]",
-              "identity": {
-                "type": "SystemAssigned"
-              },
-              "tags": {
-                "displayName": "webAppSlots"
-              },
-              "location": "[parameters('location')]",
-              "properties": {
-                "siteConfig": {
-                  "minTlsVersion": "1.2",
-                  "healthCheckPath": "/healthy",
-                  "netFrameworkVersion": "v6.0",
-                  "alwaysOn": true,
-                  "autoHealEnabled": true
-                },
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('webAppPlanName'))]"
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('webSiteName'))]",
                 "[resourceId('Microsoft.Web/serverfarms', parameters('webAppPlanName'))]"
               ]
             },
@@ -388,17 +370,9 @@
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Web/sites', parameters('webSiteName')), '2022-03-01').defaultHostName]"
             },
-            "out_webSiteSlotName": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.Web/sites/slots', parameters('webSiteName'), 'dev'), '2022-03-01').defaultHostName]"
-            },
             "out_appServiceprincipalId": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.Web/sites', parameters('webSiteName')), '2022-03-01', 'full').identity.principalId]"
-            },
-            "out_appServiceSlotServiceprincipalId": {
-              "type": "string",
-              "value": "[reference(resourceId('Microsoft.Web/sites/slots', parameters('webSiteName'), 'dev'), '2022-03-01', 'full').identity.principalId]"
             }
           }
         }
@@ -517,7 +491,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "7954355190786689740"
+              "templateHash": "6829185194613098990"
             }
           },
           "parameters": {
@@ -572,6 +546,14 @@
             "acrLoginServer": {
               "type": "string",
               "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').loginServer]"
+            },
+            "output_acr_username": {
+              "type": "string",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').username]"
+            },
+            "output_acr_pass": {
+              "type": "string",
+              "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').passwords[0].value]"
             }
           }
         }
@@ -607,7 +589,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "700068921734423900"
+              "templateHash": "8431044860484616939"
             }
           },
           "parameters": {
@@ -625,6 +607,7 @@
               "allowedValues": [
                 "northcentralusstage",
                 "eastus",
+                "eastus2",
                 "northeurope",
                 "canadacentral"
               ],
@@ -797,6 +780,18 @@
           },
           "AzObjectIdPagels": {
             "value": "[parameters('AzObjectIdPagels')]"
+          },
+          "KV_acr_usernameName": {
+            "value": "[parameters('KV_acr_usernameName')]"
+          },
+          "KV_acr_usernameNameValue": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_pass.value]"
+          },
+          "KV_acr_passName": {
+            "value": "[parameters('KV_acr_passName')]"
+          },
+          "KV_acr_passNameValue": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_username.value]"
           }
         },
         "template": {
@@ -806,7 +801,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "13952192921911176513"
+              "templateHash": "17036807044701881261"
             }
           },
           "parameters": {
@@ -826,6 +821,18 @@
               "type": "secureString"
             },
             "AzObjectIdPagels": {
+              "type": "secureString"
+            },
+            "KV_acr_usernameName": {
+              "type": "string"
+            },
+            "KV_acr_usernameNameValue": {
+              "type": "secureString"
+            },
+            "KV_acr_passName": {
+              "type": "string"
+            },
+            "KV_acr_passNameValue": {
               "type": "secureString"
             },
             "appInsightsInstrumentationKey": {
@@ -895,6 +902,24 @@
               }
             },
             {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyvaultName'), parameters('KV_acr_usernameName'))]",
+              "properties": {
+                "contentType": "text/plain",
+                "value": "[parameters('KV_acr_usernameNameValue')]"
+              }
+            },
+            {
+              "type": "Microsoft.KeyVault/vaults/secrets",
+              "apiVersion": "2022-07-01",
+              "name": "[format('{0}/{1}', parameters('keyvaultName'), parameters('KV_acr_passName'))]",
+              "properties": {
+                "contentType": "text/plain",
+                "value": "[parameters('KV_acr_passNameValue')]"
+              }
+            },
+            {
               "type": "Microsoft.Web/sites/config",
               "apiVersion": "2022-03-01",
               "name": "[format('{0}/{1}', parameters('webappName'), 'appsettings')]",
@@ -915,6 +940,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'appinsightsdeploy')]",
+        "[resourceId('Microsoft.Resources/deployments', variables('containerregistryName'))]",
         "[resourceId('Microsoft.Resources/deployments', variables('keyvaultName'))]",
         "[resourceId('Microsoft.Resources/deployments', 'webappdeploy')]"
       ]
@@ -928,6 +954,18 @@
     "out_keyvaultName": {
       "type": "string",
       "value": "[variables('keyvaultName')]"
+    },
+    "out_containerregistryName": {
+      "type": "string",
+      "value": "[variables('containerregistryName')]"
+    },
+    "output_acr_username": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_username.value]"
+    },
+    "output_acr_pass": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_pass.value]"
     }
   }
 }
