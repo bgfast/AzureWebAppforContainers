@@ -104,22 +104,31 @@ resource keyvaultaccessmod 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01'
 // Add Settings for Container Registry
 /////////////////////////////////////////////////
 
-// Reference Existing resource
-// resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
-//   name: containerregistryName
-// }
+//Reference Existing resource
+resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+  name: containerregistryName
+}
 
-// var acr_username = existing_containerregistry.listCredentials().username
-// var acr_password = existing_containerregistry.listCredentials().passwords[0].value
+var acr_username = existing_containerregistry.listCredentials().username
+var acr_password = existing_containerregistry.listCredentials().passwords[0].value
 
 resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
-  name: KV_acr_usernameName
+  name: 'Test'
   parent: existing_keyvault
   properties: {
     contentType: 'text/plain'
-    value: KV_acr_usernameNameValue
+    value: 'Test'
   }
 }
+
+// resource secret1 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
+//   name: KV_acr_usernameName
+//   parent: existing_keyvault
+//   properties: {
+//     contentType: 'text/plain'
+//     value: KV_acr_usernameNameValue
+//   }
+// }
 
 // resource secret2 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
 //   name: KV_acr_passName
