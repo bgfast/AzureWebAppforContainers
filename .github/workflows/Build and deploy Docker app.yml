@@ -249,7 +249,8 @@ jobs:
       with:
         #acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
         resourceGroup: ${{ env.Azure_Resource_GroupName }}
-        appSourcePath: $GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}} #${{ github.workspace }}
+        #appSourcePath: ${{ github.workspace }} #$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}} #${{ github.workspace }}
+        dockerfilePath: $GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}
         acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
         acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
         acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
