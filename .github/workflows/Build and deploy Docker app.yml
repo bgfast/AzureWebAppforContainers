@@ -245,7 +245,6 @@ jobs:
           echo "::set-output name=acruserpassword::$result"
 
     - name: 'Deploy Container App'
-      id: GetKVACRValues
       uses: Azure/CLI@v1
       continue-on-error: true
       with:
