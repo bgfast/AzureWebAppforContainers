@@ -8,19 +8,7 @@ on:
   workflow_dispatch: 
   
 env:
-  #APPNAME: AzureWebAppforContainerApps
-  #APPLICATIONPATH: Application/aspnet-core-dotnet-core-net6
-  #HOSTINGPLAN: AzureWebAppforContainers
   DOCKERFILEPATH: "Application/aspnet-core-dotnet-core-net6"
-  #REGISTRYSKU: "Standard"
-  #REGISTRYNAME: "azurewebappforcontainersacr"
-  #REGISTRYLOCATION: "East US 2"
-  #IMAGENAME: "azurewebappforcontainersedd3"
-  #RESOURCEGROUPNAME: rg-AzureWebAppforContainerApps
-  #LOCATION: East US 2
-  #APPINSIGHTSLOCATION: East US 2
-  #SUBSCRIPTIONID: f5e66d29-1a7f-4ee3-822e-74f644d3e665
-  #SKU: S1 Standard
   
   dotnet_version: '6.x.x'
   Azure_Resource_GroupName: 'rg-AzureWebAppforContainerApps'
@@ -74,47 +62,11 @@ jobs:
         name: Web
         path: ${{ github.workspace }}/Application/aspnet-core-dotnet-core-net6/Dockerfile
 
-    - name: Upload Docker File
+    - name: Upload csproj File
       uses: actions/upload-artifact@v3
       with:
         name: Web
         path: ${{ github.workspace }}/Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj
-
-    #- name: Docker Build & Push to ACR
-    # run: |
-       #docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
-       #docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
-
-    # Create Azure container registry
-    #- uses: azure/arm-deploy@v1
-    #  id: createAcr
-    ##  with:
-    #    subscriptionId: ${{ env.SUBSCRIPTIONID }}
-    #    resourceGroupName: ${{ env.RESOURCEGROUPNAME }}
-    #    template: ./ArmTemplates/containerRegistry-template.json
-    #    parameters: registryName="${{ env.REGISTRYNAME }}" registryLocation="${{ env.REGISTRYLOCATION }}" registrySku="${{ env.REGISTRYSKU }}"
-
-    #- name: Fetch ACR credentials
-    #  id: acrCredentials
-    #  continue-on-error: false
-    #  run: |
-    #      echo "::set-output name=acr_username::`az acr credential show -n ${{ env.REGISTRYNAME }} --query username`"
-    #      echo "::set-output name=acr_password::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
-    #      echo "::add-mask::`az acr credential show -n ${{ env.REGISTRYNAME }} --query passwords[0].value`"
-
-    #- name: ACR authentication
-    #  uses: azure/docker-login@v1
-    #  with:
-    #    login-server: ${{ env.REGISTRYNAME }}.azurecr.io
-    #    username: ${{ steps.acrCredentials.outputs.acr_username }}
-    #    password: ${{ steps.acrCredentials.outputs.acr_password }}
-
-    #- name: Docker Build & Push to ACR
-    #  run: |
-    #    docker login ${{ env.REGISTRYNAME }}.azurecr.io --username ${{ steps.acrCredentials.outputs.acr_username }} --password ${{ steps.acrCredentials.outputs.acr_password }}
-    #    docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
-    #    #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
-    #    docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
 
   deploy_infrastructure:
     runs-on: ubuntu-latest
@@ -125,6 +77,7 @@ jobs:
       output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}
       output_containerAppName: ${{ steps.Infra.outputs.out_containerAppName }}
       output_containerName: ${{ steps.Infra.outputs.out_containerName }}
+      output_containerAppEnvName: ${{ steps.Infra.outputs.out_containerAppEnvName }}
 
     name: Deploy Infrastructure
     steps:
@@ -243,12 +196,13 @@ jobs:
          echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}'
          echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
          echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
+         echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
 
     - name: 'Deploy Container'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
-        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest
 
   deploy_application_to_containerapp:
     name: Deploy to Container App
@@ -269,12 +223,17 @@ jobs:
          echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
          echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
          echo 'output_containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}'
+         echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
 
     - name: Deploy Container
       uses: Azure/container-apps-deploy-action@v0
       with:
-        acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
-        imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        #acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
+        containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
+        imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest
+        runtimeStack: 'dotnetcore:6.0'
+        containerAppEnvironment: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}
+
 
     # - name: Deploy Azure Container App Review Revisions
     #   uses: Azure/aca-review-apps@v0.2.1
