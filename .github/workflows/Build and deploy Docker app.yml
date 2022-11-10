@@ -279,8 +279,8 @@ jobs:
     #    docker push ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
     
   deploy_application_to_webapp:
-    name: Deploy Container to Web App
-    needs: docker_build_pushtoacr
+    name: Deploy to Web App
+    needs: [docker_build_pushtoacr, deploy_infrastructure]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -290,16 +290,22 @@ jobs:
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: DEBUG ONLY Display Output Variables
+      run: |
+         echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}'
+         echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
+         echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
 
     - name: 'Deploy Container'
       uses: azure/webapps-deploy@v2
       with: 
-        app-name: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}
+        app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
         images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
   deploy_application_to_containerapp:
-    name: Deploy App to Container App
-    needs: docker_build_pushtoacr
+    name: Deploy to Container App
+    needs: [docker_build_pushtoacr, deploy_infrastructure]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -310,6 +316,13 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    - name: DEBUG ONLY Display Output Variables
+      run: |
+         echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}'
+         echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
+         echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
+         echo 'output_containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}'
+         
     - name: Deploy Azure Container App Review Revisions
       uses: Azure/aca-review-apps@v0.2.1
       with:
