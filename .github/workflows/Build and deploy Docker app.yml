@@ -225,7 +225,7 @@ jobs:
          echo 'output_containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}'
          echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
 
-    - name: Deploy Container
+    - name: Build and Deploy Container App
       uses: Azure/container-apps-deploy-action@v0
       with:
         #acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
