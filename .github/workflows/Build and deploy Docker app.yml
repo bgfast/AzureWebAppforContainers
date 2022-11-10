@@ -226,7 +226,7 @@ jobs:
     needs: [docker_build_pushtoacr, deploy_infrastructure]
     environment:
       name: 'Development'
-      url: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
+      url: 'https://${{ needs.deploy_infrastructure.outputs.output_webSiteName }}.azurewebsites.net/'
     runs-on: ubuntu-latest
 
     steps:
@@ -273,7 +273,7 @@ jobs:
     - name: Deploy Container
       uses: Azure/container-apps-deploy-action@v0
       with:
-        acrName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
+        acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
         imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
     # - name: Deploy Azure Container App Review Revisions
