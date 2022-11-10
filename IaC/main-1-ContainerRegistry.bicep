@@ -10,7 +10,7 @@ param acrAdminUserEnabled bool = true
   'Premium'
 ])
 @description('Tier of your Azure Container Registry.')
-param acrSku string = 'Standard'
+param acrSku string = 'Basic'
 
 // azure container registry
 resource containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = {

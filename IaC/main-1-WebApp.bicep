@@ -1,4 +1,4 @@
-param skuName string = 'S2'
+param skuName string = 'S1'
 param location string
 param webAppPlanName string
 param webSiteName string
