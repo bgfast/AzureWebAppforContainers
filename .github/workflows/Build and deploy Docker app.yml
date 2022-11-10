@@ -206,8 +206,8 @@ jobs:
 
   deploy_application_to_containerapp:
     name: Build and Deploy Container App
-    #needs: [docker_build_pushtoacr, deploy_infrastructure]
-    needs: [deploy_infrastructure]
+    needs: [docker_build_pushtoacr, deploy_infrastructure]
+    #needs: [deploy_infrastructure]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -250,14 +250,14 @@ jobs:
         #acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
         resourceGroup: ${{ env.Azure_Resource_GroupName }}
         #appSourcePath: ${{ github.workspace }} #$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}} #${{ github.workspace }}
-        dockerfilePath: $GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}
-        acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
-        acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
-        acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
-        imageToBuild: ${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        #dockerfilePath: $GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}
+        #acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
+        #acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
+        #acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
+        #imageToBuild: ${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
         containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
         imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest
-        runtimeStack: 'dotnetcore:6.0'
+        #runtimeStack: 'dotnetcore:6.0'
         containerAppEnvironment: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}
 
 
