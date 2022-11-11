@@ -256,9 +256,7 @@ jobs:
             --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest \
             --target-port 80 \
             --ingress 'external' \
-            --query properties.configuration.ingress.fqdn \
-            --system-assigned true
-
+            --query properties.configuration.ingress.fqdn
 
     # - name: Build and Deploy Container App
     #   uses: Azure/container-apps-deploy-action@v0
