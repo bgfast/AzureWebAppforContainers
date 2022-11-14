@@ -25,7 +25,7 @@ WORKDIR /src
 COPY ["aspnet-core-dotnet-core-net6.csproj", "./"]
 
 # Execute dotnet restore to restore dependencies specified in the .csproj file
-RUN dotnet restore "src/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj"
+RUN dotnet restore "src/aspnet-core-dotnet-core-net6.csproj"
 
 # Copy everything to the container filesystem
 COPY . .
