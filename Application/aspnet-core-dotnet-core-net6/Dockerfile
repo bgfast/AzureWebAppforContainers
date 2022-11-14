@@ -21,7 +21,8 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build
 WORKDIR /src
 
 # Copy the project file to the container filesystem /src folder
-COPY ["src/Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj", "aspnet-core-dotnet-core-net6/"]
+#COPY ["src/Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj", "aspnet-core-dotnet-core-net6/"]
+COPY ["aspnet-core-dotnet-core-net6.csproj", "./"]
 
 # Execute dotnet restore to restore dependencies specified in the .csproj file
 RUN dotnet restore "src/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj"
