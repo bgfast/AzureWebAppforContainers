@@ -1,4 +1,4 @@
-namespace aspnet_core_dotnet_core_net6.Models
+namespace WebApplication.Web.Models
 {
     public class ErrorViewModel
     {
