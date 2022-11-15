@@ -31,7 +31,7 @@ RUN dotnet restore "src/aspnet-core-dotnet-core-net6.csproj"
 COPY . .
 
 # Set the working directory for subsequent RUN commands
-WORKDIR "/src/src/aspnet-core-dotnet-core-net6"
+WORKDIR "/src/aspnet-core-dotnet-core-net6"
 
 # Execute project build with all of its dependencies
 RUN dotnet build "aspnet-core-dotnet-core-net6.csproj" -c Release -o /app/build
