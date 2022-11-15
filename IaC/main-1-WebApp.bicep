@@ -9,7 +9,10 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
   name: webAppPlanName // app serivce plan name
   location: location // Azure Region
   tags: defaultTags
-  properties: {}
+  kind: 'linux'
+  properties: {
+    reserved: true
+  }
   sku: {
     name: skuName
   }
