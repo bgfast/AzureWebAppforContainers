@@ -156,7 +156,6 @@ jobs:
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
 
-    #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
@@ -226,11 +225,12 @@ jobs:
          echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
          echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
 
-    - name: 'Deploy Container'
+    - name: 'Deploy Container to Web App'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
-        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest
+        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        startup-command: dotnet run
 
   deploy_application_to_containerapp:
     name: Deploy Container App
