@@ -86,7 +86,7 @@ jobs:
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
          echo 'output_containerName: ${{ steps.Infra.outputs.out_containerName }}'
 
-  build:
+  docker_build_push:
     name: Docker Build & Push to ACR
     runs-on: ubuntu-latest
     needs: deploy_infrastructure
@@ -204,7 +204,7 @@ jobs:
 
   deploy_application_to_webapp:
     name: Deploy to Web App
-    needs: [docker_build_pushtoacr, deploy_infrastructure]
+    needs: [docker_build_push, deploy_infrastructure]
     environment:
       name: 'Development'
       url: 'https://${{ needs.deploy_infrastructure.outputs.output_webSiteName }}.azurewebsites.net/'
@@ -234,7 +234,7 @@ jobs:
 
   deploy_application_to_containerapp:
     name: Build and Deploy Container App
-    needs: [docker_build_pushtoacr, deploy_infrastructure]
+    needs: [docker_build_push, deploy_infrastructure]
     #needs: [deploy_infrastructure]
     runs-on: ubuntu-latest
     steps:
