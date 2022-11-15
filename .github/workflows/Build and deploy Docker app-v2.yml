@@ -230,7 +230,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
-        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest
+        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
   deploy_application_to_containerapp:
     name: Deploy Container App
@@ -280,7 +280,7 @@ jobs:
             --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
             --resource-group ${{ env.Azure_Resource_GroupName }} \
             --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \
-            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest \
+            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
             --target-port 80 \
             --ingress 'external' \
             --query properties.configuration.ingress.fqdn
