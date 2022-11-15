@@ -230,7 +230,6 @@ jobs:
       with: 
         app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
         images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
-        startup-command: dotnet run
 
   deploy_application_to_containerapp:
     name: Deploy Container App
