@@ -1,0 +1,347 @@
+name: Build and deploy Docker app to Azure v2
+on:
+  push:
+    branches:
+      - master
+
+  # Allow mannually trigger 
+  workflow_dispatch: 
+  
+env:
+  DOCKERFILEPATH: "Application/aspnet-core-dotnet-core-net6"
+  
+  dotnet_version: '6.x.x'
+  Azure_Resource_GroupName: 'rg-AzureWebAppforContainerApps'
+  Azure_Resource_GroupLocation: 'eastus2'
+  CONFIGURATION: Release
+  WORKING_DIRECTORY: .
+  
+jobs:
+  deploy_infrastructure:
+    runs-on: ubuntu-latest
+    outputs:
+      output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}
+      output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}
+      output_containerregistryName: ${{ steps.Infra.outputs.out_containerregistryName }}
+      output_containerAppName: ${{ steps.Infra.outputs.out_containerAppName }}
+      output_containerName: ${{ steps.Infra.outputs.out_containerName }}
+      output_containerAppEnvName: ${{ steps.Infra.outputs.out_containerAppEnvName }}
+
+    name: Deploy Infrastructure
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Ensure Resource Group Exists
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          #!/bin/bash
+          az group create --name ${{ env.Azure_Resource_GroupName }} --location ${{ env.Azure_Resource_GroupLocation }}
+
+    - name: Ensure Resource Group is UnLocked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    # - name: Download Build Artifact-Infrastructure
+    #   uses: actions/download-artifact@v3
+    #   continue-on-error: false
+    #   with:
+    #     name: IaC
+    #     path: ${{ github.workspace }}/IaC
+
+      # Deploy ARM Template using Bicep DSL
+    - name: Infrastructure Deploy
+      id: Infra
+      uses: azure/arm-deploy@v1
+      continue-on-error: false
+      with:
+        resourceGroupName: ${{ env.Azure_Resource_GroupName }}
+        template: ./IaC/main-1.bicep
+        #parameters: ./IaC/main-1.params.json
+        deploymentMode: Incremental
+        failOnStdErr: false
+
+    - name: Ensure Resource Group is Locked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock create --lock-type CanNotDelete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }} --notes 'Prevent deletion of the resource group'
+
+    - name: DEBUG ONLY Display Output Variables
+      run: |
+         echo 'output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}'
+         echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
+         echo 'output_containerName: ${{ steps.Infra.outputs.out_containerName }}'
+
+  build:
+    name: Docker Build & Push to ACR
+    runs-on: ubuntu-latest
+    needs: deploy_infrastructure
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: ${{ env.dotnet_version }}
+          
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    # - name: Restore
+    #   run: dotnet restore ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj
+
+    # - name: Build
+    #   run: dotnet build ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-restore
+
+    # - name: Publish
+    #   run: dotnet publish ./Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj --configuration ${{ env.CONFIGURATION }} --no-build --output './web'
+
+    # - name: Upload Build Artifacts-Website
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: Web
+    #     path: ${{ github.workspace }}/web
+
+    # - name: Upload Infrastucture Files
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: IaC
+    #     path: ${{ github.workspace }}/IaC/*.*
+
+    # - name: Upload Docker File
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: Web
+    #     path: ${{ github.workspace }}/Application/aspnet-core-dotnet-core-net6/Dockerfile
+
+    # - name: Upload csproj File
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: Web
+    #     path: ${{ github.workspace }}/Application/aspnet-core-dotnet-core-net6/aspnet-core-dotnet-core-net6.csproj
+
+    - name: 'Get Key Vault values'
+      id: GetKVACRValues
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          result=$(az keyvault secret show \
+                      --name "acrusername" \
+                      --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+                      --query "value" --output tsv)
+          echo "::set-output name=acrusername::$result"
+          result=$(az keyvault secret show \
+            --name "acrpassword" \
+            --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+            --query "value" --output tsv)
+          echo "::set-output name=acruserpassword::$result"
+
+    #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
+    - name: Docker Build & Push to ACR
+      run: |
+        docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
+        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+
+  # docker_build_pushtoacr:
+  #   runs-on: ubuntu-latest
+  #   needs: deploy_infrastructure
+
+  #   name: Docker Build & Push to ACR
+  #   steps:
+  #   - name: Checkout
+  #     uses: actions/checkout@v3
+
+  #   - name: Azure authentication
+  #     uses: azure/login@v1
+  #     with:
+  #       creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #   - name: 'Get Key Vault values'
+  #     id: GetKVACRValues
+  #     uses: Azure/CLI@v1
+  #     continue-on-error: true
+  #     with:
+  #       inlineScript: |
+  #         az config set extension.use_dynamic_install=yes_without_prompt
+  #         result=$(az keyvault secret show \
+  #                     --name "acrusername" \
+  #                     --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+  #                     --query "value" --output tsv)
+  #         echo "::set-output name=acrusername::$result"
+  #         result=$(az keyvault secret show \
+  #           --name "acrpassword" \
+  #           --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+  #           --query "value" --output tsv)
+  #         echo "::set-output name=acruserpassword::$result"
+
+  #   #docker tag ${{ env.IMAGENAME }}:${{ github.sha }} ${{ env.IMAGENAME }}:latest
+  #   - name: Docker Build & Push to ACR
+  #     run: |
+  #       docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
+  #       docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+  #       docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+
+  deploy_application_to_webapp:
+    name: Deploy to Web App
+    needs: [docker_build_pushtoacr, deploy_infrastructure]
+    environment:
+      name: 'Development'
+      url: 'https://${{ needs.deploy_infrastructure.outputs.output_webSiteName }}.azurewebsites.net/'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: DEBUG ONLY Display Output Variables
+      run: |
+         echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}'
+         echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
+         echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
+         echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
+
+    - name: 'Deploy Container'
+      uses: azure/webapps-deploy@v2
+      with: 
+        app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
+        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest
+
+  deploy_application_to_containerapp:
+    name: Build and Deploy Container App
+    needs: [docker_build_pushtoacr, deploy_infrastructure]
+    #needs: [deploy_infrastructure]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Azure authentication
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: DEBUG ONLY Display Output Variables
+      run: |
+         echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}'
+         echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
+         echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
+         echo 'output_containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}'
+         echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
+
+    - name: 'Get Key Vault values'
+      id: GetKVACRValues
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          result=$(az keyvault secret show \
+                      --name "acrusername" \
+                      --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+                      --query "value" --output tsv)
+          echo "::set-output name=acrusername::$result"
+          result=$(az keyvault secret show \
+            --name "acrpassword" \
+            --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
+            --query "value" --output tsv)
+          echo "::set-output name=acruserpassword::$result"
+
+    - name: 'Deploy Container App'
+      uses: Azure/CLI@v1
+      continue-on-error: false
+      with:
+        inlineScript: |
+          az containerapp create \
+            --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
+            --resource-group ${{ env.Azure_Resource_GroupName }} \
+            --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \
+            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest \
+            --target-port 80 \
+            --ingress 'external' \
+            --query properties.configuration.ingress.fqdn
+
+    # - name: Build and Deploy Container App
+    #   uses: Azure/container-apps-deploy-action@v0
+    #   with:
+    #     #acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
+    #     resourceGroup: ${{ env.Azure_Resource_GroupName }}
+    #     #appSourcePath: ${{ github.workspace }} #$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}} #${{ github.workspace }}
+    #     #dockerfilePath: $GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}
+    #     #acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
+    #     #acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
+    #     #acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
+    #     #imageToBuild: ${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+    #     containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
+    #     imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:latest
+    #     #runtimeStack: 'dotnetcore:6.0'
+    #     containerAppEnvironment: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}
+
+
+    # - name: Deploy Azure Container App Review Revisions
+    #   uses: Azure/aca-review-apps@v0.2.1
+    #   with:
+    #     # Name of the Resource Group in which the Container App will be created
+    #     resource-group: ${{ env.Azure_Resource_GroupName }}
+    #     # Name of the Container App
+    #     name: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
+    #     # Name of Container Image. If the `mode` input is `deactivate-revision`, this input is ignored.
+    #     # image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:${{ github.sha }}
+    #     #image: ${{ env.REGISTRYNAME }}.azurecr.io/${{ env.IMAGENAME }}:latest
+    #     image: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+    #     # Suffixes for New Revision or Target Revision of deactivation. If the `mode` input is `deactivate-revision`, this input needs to be set.
+    #     revision-name-suffix: 'staging'
+    #     # Enable Deactivation-Revision Mode of this action. `true` or `false`. Default value is `false`
+    #     #deactivate-revision-mode: # optional
+    
+
+  # FunctionalTests:
+  #   name: Functional tests
+  #   runs-on: windows-latest
+  #   needs: [deploy_application_to_webapp, deploy_application_to_containerapp]
+  #   steps:
+  #   - uses: actions/checkout@master
+
+  #   - name: Setup .NET Core
+  #     uses: actions/setup-dotnet@v1
+  #     with:
+  #       dotnet-version: ${{ env.DOTNET_VERSION }}
+
+  #   - name: Update web app url in Run Settings
+  #     shell: powershell
+  #     run: |
+  #         cd Application\aspnet-core-dotnet-core.FunctionalTests
+  #         [xml]$runSetting = Get-Content functionalTests.runsettings
+  #         $runSetting.RunSettings.TestRunParameters.ChildNodes.Item(0).value = 'https://${{ env.APPNAME }}.azurewebsites.net/'
+  #         $runSetting.Save("$(pwd)/functionalTests.runsettings")
+
+  #   - name: Run tests
+  #     continue-on-error: false
+  #     run: |
+  #         cd Application\aspnet-core-dotnet-core.FunctionalTests
+  #         dotnet test aspnet-core-dotnet-core.FunctionalTests.csproj -s functionalTests.runsettings
