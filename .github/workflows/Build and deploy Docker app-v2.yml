@@ -8,7 +8,7 @@ on:
   workflow_dispatch: 
   
 env:
-  DOCKERFILEPATH: "Application/aspnet-core-dotnet-core-net6"
+  DOCKERFILEPATH: "Application/AspNetWebApp.Web"
   
   dotnet_version: '6.x.x'
   Azure_Resource_GroupName: 'rg-AzureWebAppforContainerApps'
