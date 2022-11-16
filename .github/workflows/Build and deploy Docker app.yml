@@ -216,7 +216,7 @@ jobs:
          echo 'acrusername: ${{ steps.GetKVACRValues.outputs.acrusername }}'
          echo 'acruserpassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}'
 
-    - name: 'Deploy Container App'
+    - name: 'Deploy to Container App'
       uses: Azure/CLI@v1
       continue-on-error: false
       with:
