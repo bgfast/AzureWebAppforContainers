@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.12.40.16777",
-      "templateHash": "8256100060221604510"
+      "templateHash": "14129162573277395335"
     }
   },
   "parameters": {
@@ -27,11 +27,11 @@
     },
     "KV_acr_usernameName": {
       "type": "string",
-      "defaultValue": "acr_username"
+      "defaultValue": "acrusername"
     },
     "KV_acr_passName": {
       "type": "string",
-      "defaultValue": "acr_password"
+      "defaultValue": "acrpassword"
     },
     "ADOServiceprincipalObjectId": {
       "type": "string",
@@ -49,9 +49,10 @@
     "webAppPlanName": "[format('appplan-{0}', uniqueString(resourceGroup().id))]",
     "webSiteName": "[format('app-{0}', uniqueString(resourceGroup().id))]",
     "keyvaultName": "[format('kv-{0}', uniqueString(resourceGroup().id))]",
-    "containerregistryName": "[format('containerregistry{0}', uniqueString(resourceGroup().id))]",
-    "containerAppName": "[format('containerapp-{0}', uniqueString(resourceGroup().id))]",
-    "containerAppEnvName": "[format('containerapp-env-{0}', uniqueString(resourceGroup().id))]",
+    "containerregistryName": "[format('cr{0}', uniqueString(resourceGroup().id))]",
+    "containerName": "[format('containers-{0}', uniqueString(resourceGroup().id))]",
+    "containerAppName": "[format('ca-{0}', uniqueString(resourceGroup().id))]",
+    "containerAppEnvName": "[format('cae-{0}', uniqueString(resourceGroup().id))]",
     "containerAppLogAnalyticsName": "[format('containerapp-log-{0}', uniqueString(resourceGroup().id))]",
     "defaultTags": {
       "App": "Web App for Containers",
@@ -249,13 +250,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "1090814058052798640"
+              "templateHash": "9067101634117130649"
             }
           },
           "parameters": {
             "skuName": {
               "type": "string",
-              "defaultValue": "S2"
+              "defaultValue": "S1"
             },
             "location": {
               "type": "string"
@@ -280,7 +281,10 @@
               "name": "[parameters('webAppPlanName')]",
               "location": "[parameters('location')]",
               "tags": "[parameters('defaultTags')]",
-              "properties": {},
+              "kind": "linux",
+              "properties": {
+                "reserved": true
+              },
               "sku": {
                 "name": "[parameters('skuName')]"
               }
@@ -342,6 +346,56 @@
                 "Configuration": null,
                 "Request": {
                   "RequestUrl": "[format('https://{0}.azurewebsites.net/', parameters('webSiteName'))]",
+                  "Headers": null,
+                  "HttpVerb": "GET",
+                  "RequestBody": null,
+                  "ParseDependentRequests": false,
+                  "FollowRedirects": null
+                },
+                "ValidationRules": {
+                  "ExpectedHttpStatusCode": 200,
+                  "IgnoreHttpsStatusCode": false,
+                  "ContentValidation": null,
+                  "SSLCheck": true,
+                  "SSLCertRemainingLifetimeCheck": 7
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('webSiteName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Insights/webtests",
+              "apiVersion": "2022-06-15",
+              "name": "Privacy Page Ping Test",
+              "location": "[parameters('location')]",
+              "tags": {
+                "[format('hidden-link:{0}/resourceGroups/{1}/providers/microsoft.insights/components/{2}', subscription().id, resourceGroup().name, parameters('appInsightsName'))]": "Resource"
+              },
+              "kind": "ping",
+              "properties": {
+                "SyntheticMonitorId": "[parameters('appInsightsName')]",
+                "Name": "Page Privacy",
+                "Description": null,
+                "Enabled": true,
+                "Frequency": 300,
+                "Timeout": 120,
+                "Kind": "standard",
+                "RetryEnabled": true,
+                "Locations": [
+                  {
+                    "Id": "us-va-ash-azr"
+                  },
+                  {
+                    "Id": "us-fl-mia-edge"
+                  },
+                  {
+                    "Id": "us-ca-sjc-azr"
+                  }
+                ],
+                "Configuration": null,
+                "Request": {
+                  "RequestUrl": "[format('https://{0}.azurewebsites.net/Home/Privacy', parameters('webSiteName'))]",
                   "Headers": null,
                   "HttpVerb": "GET",
                   "RequestBody": null,
@@ -491,7 +545,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "15984166876443999202"
+              "templateHash": "6829185194613098990"
             }
           },
           "parameters": {
@@ -510,7 +564,7 @@
             },
             "acrSku": {
               "type": "string",
-              "defaultValue": "Standard",
+              "defaultValue": "Basic",
               "metadata": {
                 "description": "Tier of your Azure Container Registry."
               },
@@ -580,6 +634,9 @@
           },
           "location": {
             "value": "[parameters('location')]"
+          },
+          "containerregistryName": {
+            "value": "[variables('containerregistryName')]"
           }
         },
         "template": {
@@ -589,7 +646,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "8431044860484616939"
+              "templateHash": "13129347904598040031"
             }
           },
           "parameters": {
@@ -600,6 +657,9 @@
               "type": "string"
             },
             "containerAppLogAnalyticsName": {
+              "type": "string"
+            },
+            "containerregistryName": {
               "type": "string"
             },
             "location": {
@@ -713,7 +773,13 @@
                         "weight": 100
                       }
                     ]
-                  }
+                  },
+                  "secrets": [
+                    {
+                      "name": "[parameters('containerregistryName')]",
+                      "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').passwords[0].value]"
+                    }
+                  ]
                 },
                 "template": {
                   "revisionSuffix": "firstrevision",
@@ -745,7 +811,10 @@
             }
           }
         }
-      }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', variables('containerregistryName'))]"
+      ]
     },
     {
       "type": "Microsoft.Resources/deployments",
@@ -781,6 +850,9 @@
           "AzObjectIdPagels": {
             "value": "[parameters('AzObjectIdPagels')]"
           },
+          "ACRUrl": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.acrLoginServer.value]"
+          },
           "KV_acr_usernameName": {
             "value": "[parameters('KV_acr_usernameName')]"
           },
@@ -792,9 +864,6 @@
           },
           "KV_acr_passNameValue": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('containerregistryName')), '2020-10-01').outputs.output_acr_pass.value]"
-          },
-          "containerregistryName": {
-            "value": "[variables('containerregistryName')]"
           }
         },
         "template": {
@@ -804,7 +873,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "8333658154947499211"
+              "templateHash": "12310194038559053028"
             }
           },
           "parameters": {
@@ -814,10 +883,10 @@
             "webappName": {
               "type": "string"
             },
-            "containerregistryName": {
+            "tenant": {
               "type": "string"
             },
-            "tenant": {
+            "ACRUrl": {
               "type": "string"
             },
             "appServiceprincipalId": {
@@ -910,19 +979,13 @@
             {
               "type": "Microsoft.KeyVault/vaults/secrets",
               "apiVersion": "2022-07-01",
-              "name": "[format('{0}/{1}', parameters('keyvaultName'), 'Test')]",
-              "properties": {
-                "contentType": "text/plain",
-                "value": "Test"
-              }
-            },
-            {
-              "type": "Microsoft.KeyVault/vaults/secrets",
-              "apiVersion": "2022-07-01",
               "name": "[format('{0}/{1}', parameters('keyvaultName'), parameters('KV_acr_usernameName'))]",
               "properties": {
+                "attributes": {
+                  "enabled": true
+                },
                 "contentType": "text/plain",
-                "value": "KV_acr_usernameName"
+                "value": "[parameters('KV_acr_usernameNameValue')]"
               }
             },
             {
@@ -931,7 +994,7 @@
               "name": "[format('{0}/{1}', parameters('keyvaultName'), parameters('KV_acr_passName'))]",
               "properties": {
                 "contentType": "text/plain",
-                "value": "KV_acr_passName"
+                "value": "[parameters('KV_acr_passNameValue')]"
               }
             },
             {
@@ -947,7 +1010,10 @@
                 "APPLICATIONINSIGHTS_CONNECTION_STRING": "[parameters('appInsightsConnectionString')]",
                 "WebAppUrl": "[format('https://{0}.azurewebsites.net/', parameters('webappName'))]",
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "KeyVaultUrl": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyvaultName')), '2022-07-01').vaultUri]"
+                "KeyVaultUrl": "[reference(resourceId('Microsoft.KeyVault/vaults', parameters('keyvaultName')), '2022-07-01').vaultUri]",
+                "DOCKER_REGISTRY_SERVER_URL": "[parameters('ACRUrl')]",
+                "DOCKER_REGISTRY_SERVER_USERNAME": "[format('@Microsoft.KeyVault(VaultName={0};SecretName={1})', parameters('keyvaultName'), parameters('KV_acr_usernameName'))]",
+                "DOCKER_REGISTRY_SERVER_PASSWORD": "[format('@Microsoft.KeyVault(VaultName={0};SecretName={1})', parameters('keyvaultName'), parameters('KV_acr_passName'))]"
               }
             }
           ]
@@ -973,6 +1039,18 @@
     "out_containerregistryName": {
       "type": "string",
       "value": "[variables('containerregistryName')]"
+    },
+    "out_containerAppName": {
+      "type": "string",
+      "value": "[variables('containerAppName')]"
+    },
+    "out_containerAppEnvName": {
+      "type": "string",
+      "value": "[variables('containerAppEnvName')]"
+    },
+    "out_containerName": {
+      "type": "string",
+      "value": "[variables('containerName')]"
     }
   }
 }

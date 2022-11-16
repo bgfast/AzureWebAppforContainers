@@ -21,7 +21,7 @@ var containerregistryName = 'cr${uniqueString(resourceGroup().id)}'
 var containerName = 'containers-${uniqueString(resourceGroup().id)}'
 var containerAppName = 'ca-${uniqueString(resourceGroup().id)}'
 var containerAppEnvName = 'cae-${uniqueString(resourceGroup().id)}'
-var containerAppLogAnalyticsName = 'containerapp-log-${uniqueString(resourceGroup().id)}'
+var containerAppLogAnalyticsName = 'calog-${uniqueString(resourceGroup().id)}'
 
 // Tags
 var defaultTags = {
