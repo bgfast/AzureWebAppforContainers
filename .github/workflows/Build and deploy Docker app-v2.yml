@@ -285,8 +285,7 @@ jobs:
             --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \
             --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \       
             --target-port 80 \
-            --ingress external \
-            --query properties.configuration.ingress.fqdn
+            --ingress external
 
     # - name: 'Deploy Container App'
     #   uses: Azure/CLI@v1
