@@ -1,6 +1,7 @@
 param keyvaultName string
 param webappName string
 param tenant string
+param ACRUrl string
 
 @secure()
 param appServiceprincipalId string
@@ -145,6 +146,9 @@ resource webSiteAppSettingsStrings 'Microsoft.Web/sites/config@2022-03-01' = {
     WebAppUrl: 'https://${existing_appService.name}.azurewebsites.net/'
     ASPNETCORE_ENVIRONMENT: 'Development'
     KeyVaultUrl: existing_keyvault.properties.vaultUri
+    DOCKER_REGISTRY_SERVER_URL: ACRUrl
+    DOCKER_REGISTRY_SERVER_USERNAME: '@Microsoft.KeyVault(VaultName=${keyvaultName};SecretName=${KV_acr_usernameName})'
+    DOCKER_REGISTRY_SERVER_PASSWORD: '@Microsoft.KeyVault(VaultName=${keyvaultName};SecretName=${KV_acr_passName})'
   }
   // dependsOn: [
   //   secret6
