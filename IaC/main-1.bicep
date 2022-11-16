@@ -14,10 +14,10 @@ var appInsightsAlertName = 'responsetime-${uniqueString(resourceGroup().id)}'
 var webAppPlanName = 'appplan-${uniqueString(resourceGroup().id)}'
 var webSiteName = 'app-${uniqueString(resourceGroup().id)}'
 var keyvaultName = 'kv-${uniqueString(resourceGroup().id)}'
-var containerregistryName = 'containerregistry${uniqueString(resourceGroup().id)}'
+var containerregistryName = 'cr-${uniqueString(resourceGroup().id)}'
 var containerName = 'containers-${uniqueString(resourceGroup().id)}'
-var containerAppName = 'containerapp-${uniqueString(resourceGroup().id)}'
-var containerAppEnvName = 'containerapp-env-${uniqueString(resourceGroup().id)}'
+var containerAppName = 'ca-${uniqueString(resourceGroup().id)}'
+var containerAppEnvName = 'cae-${uniqueString(resourceGroup().id)}'
 var containerAppLogAnalyticsName = 'containerapp-log-${uniqueString(resourceGroup().id)}'
 
 // Tags

@@ -188,14 +188,6 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: DEBUG ONLY Display Output Variables
-      run: |
-         echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}'
-         echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
-         echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
-         echo 'output_containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}'
-         echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
-
     - name: 'Get Key Vault values'
       id: GetKVACRValues
       uses: Azure/CLI@v1
@@ -214,8 +206,13 @@ jobs:
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
 
-    - name: DEBUG ONLY Display JV Output Variables
+    - name: DEBUG ONLY Display Output Variables
       run: |
+         echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}'
+         echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
+         echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
+         echo 'output_containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}'
+         echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
          echo 'acrusername: ${{ steps.GetKVACRValues.outputs.acrusername }}'
          echo 'acruserpassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}'
 
