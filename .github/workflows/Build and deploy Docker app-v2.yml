@@ -294,7 +294,7 @@ jobs:
              --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
              --resource-group ${{ env.Azure_Resource_GroupName }} \
              --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
-             --registry-login-server ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}.azurecr.io \
+             --registry-login-server ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io \
              --registry-username ${{ steps.GetKVACRValues.outputs.acrusername }} \
              --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \
              --target-port 80 \
