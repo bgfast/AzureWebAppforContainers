@@ -1,9 +1,18 @@
+using AspNetWebApp.Web;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+// Setup Health Probe
+builder.Services.AddHealthChecks()
+    .AddCheck<MyAppHealthCheck>("Sample");
+
 var app = builder.Build();
+
+// Setup Health Probe Endpoint
+app.MapHealthChecks("/healthy");
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
