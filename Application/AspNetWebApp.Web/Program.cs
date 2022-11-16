@@ -8,6 +8,7 @@ builder.Services.AddControllersWithViews();
 // Setup Health Probe
 builder.Services.AddHealthChecks()
     .AddCheck<MyAppHealthCheck>("Sample");
+builder.Services.AddApplicationInsightsTelemetry(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]);
 
 var app = builder.Build();
 
