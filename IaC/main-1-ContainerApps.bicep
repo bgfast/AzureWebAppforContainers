@@ -1,6 +1,7 @@
 param containerAppName string
 param containerAppEnvName string
 param containerAppLogAnalyticsName string
+param containerregistryName string
 
 @description('Specifies the location for all resources.')
 @allowed([
@@ -58,6 +59,11 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' 
   }
 }
 
+// Reference Existing resource
+resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+  name: containerregistryName
+}
+
 resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
   name: containerAppName
   location: location
@@ -78,6 +84,12 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
           }
         ]
       }
+      secrets: [
+        {
+          name: 'hey-andrew-my-container-registry-password'
+          value: existing_containerregistry.listCredentials().passwords[0].value
+        }
+      ]
     }
     template: {
       revisionSuffix: 'firstrevision'

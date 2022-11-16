@@ -14,7 +14,10 @@ var appInsightsAlertName = 'responsetime-${uniqueString(resourceGroup().id)}'
 var webAppPlanName = 'appplan-${uniqueString(resourceGroup().id)}'
 var webSiteName = 'app-${uniqueString(resourceGroup().id)}'
 var keyvaultName = 'kv-${uniqueString(resourceGroup().id)}'
+
+// Resource names may contain alpha numeric characters only and must be between 5 and 50 characters.
 var containerregistryName = 'cr${uniqueString(resourceGroup().id)}'
+
 var containerName = 'containers-${uniqueString(resourceGroup().id)}'
 var containerAppName = 'ca-${uniqueString(resourceGroup().id)}'
 var containerAppEnvName = 'cae-${uniqueString(resourceGroup().id)}'
@@ -87,7 +90,11 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
     containerAppLogAnalyticsName: containerAppLogAnalyticsName
     containerAppName: containerAppName
     location: location
+    containerregistryName: containerregistryName
   }
+  dependsOn:  [
+    containerregistrymod
+  ]
  }
 
 // This is NOT supported. Look up Object ID for Service Principal
