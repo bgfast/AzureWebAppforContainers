@@ -234,7 +234,7 @@ jobs:
             --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \
             --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \
             --target-port 80 \
-            --ingress 'external'
+            --ingress external \
             --env-vars CorsAllowedHosts=*
 
     - name: Azure CLI script
