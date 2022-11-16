@@ -107,6 +107,52 @@ resource standardWebTestPageHome  'Microsoft.Insights/webtests@2022-06-15' = {
   }
 }
 
+resource standardWebTestPagePrivacy  'Microsoft.Insights/webtests@2022-06-15' = {
+  name: 'Privacy Page Ping Test'
+  location: location
+  tags: {
+    'hidden-link:${subscription().id}/resourceGroups/${resourceGroup().name}/providers/microsoft.insights/components/${appInsightsName}': 'Resource'
+   }
+  kind: 'ping'
+  properties: {
+    SyntheticMonitorId: appInsightsName
+    Name: 'Page Privacy'
+    Description: null
+    Enabled: true
+    Frequency: 300
+    Timeout: 120 
+    Kind: 'standard'
+    RetryEnabled: true
+    Locations: [
+      {
+        Id: 'us-va-ash-azr'  // East US
+      }
+      {
+        Id: 'us-fl-mia-edge' // Central US
+      }
+      {
+        Id: 'us-ca-sjc-azr' // West US
+      }
+    ]
+    Configuration: null
+    Request: {
+      RequestUrl: 'https://${appService.name}.azurewebsites.net/Home/Privacy'
+      Headers: null
+      HttpVerb: 'GET'
+      RequestBody: null
+      ParseDependentRequests: false
+      FollowRedirects: null
+    }
+    ValidationRules: {
+      ExpectedHttpStatusCode: 200
+      IgnoreHttpsStatusCode: false
+      ContentValidation: null
+      SSLCheck: true
+      SSLCertRemainingLifetimeCheck: 7
+    }
+  }
+}
+
 output out_appService string = appService.id
 output out_webSiteName string = appService.properties.defaultHostName
 // output out_webSiteSlotName string = webAppName_stagingSlotName.properties.defaultHostName
