@@ -230,6 +230,7 @@ jobs:
             --registry-username ${{ steps.GetKVACRValues.outputs.acrusername }} \
             --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \
             --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \
+            --secrets ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}=${{ steps.GetKVACRValues.outputs.acruserpassword }} \
             --target-port 80 \
             --ingress external \
             --env-vars CorsAllowedHosts=*

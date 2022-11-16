@@ -86,7 +86,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
       }
       secrets: [
         {
-          name: containerregistryName
+          name: existing_containerregistry.name
           value: existing_containerregistry.listCredentials().passwords[0].value
         }
       ]
