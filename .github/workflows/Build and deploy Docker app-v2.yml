@@ -271,8 +271,6 @@ jobs:
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
 
-#            --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \
-
     - name: 'Deploy Container App'
      uses: Azure/CLI@v1
      continue-on-error: false
@@ -331,6 +329,7 @@ jobs:
     #     #runtimeStack: 'dotnetcore:6.0'
     #     containerAppEnvironment: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}
 
+    #            --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \
 
     # - name: Deploy Azure Container App Review Revisions
     #   uses: Azure/aca-review-apps@v0.2.1
