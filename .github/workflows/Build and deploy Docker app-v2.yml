@@ -271,31 +271,31 @@ jobs:
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
 
-    - name: 'Deploy Container App'
-      uses: Azure/CLI@v1
-      continue-on-error: false
-      with:
-        inlineScript: |
-          az containerapp create \
-            --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
-            --resource-group ${{ env.Azure_Resource_GroupName }} \
-            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
-            --registry-server ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io \
-            --registry-username ${{ steps.GetKVACRValues.outputs.acrusername }} \
-            --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \           
-            --target-port 80 \
-            --ingress 'external' \
-            --query properties.configuration.ingress.fqdn
-
     # - name: 'Deploy Container App'
     #   uses: Azure/CLI@v1
     #   continue-on-error: false
     #   with:
     #     inlineScript: |
-    #       az containerapp update \
-    #          --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
-    #          --resource-group ${{ env.Azure_Resource_GroupName }} \
-    #          --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
+    #       az containerapp create \
+    #         --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
+    #         --resource-group ${{ env.Azure_Resource_GroupName }} \
+    #         --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
+    #         --registry-server ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io \
+    #         --registry-username ${{ steps.GetKVACRValues.outputs.acrusername }} \
+    #         --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \           
+    #         --target-port 80 \
+    #         --ingress 'external' \
+    #         --query properties.configuration.ingress.fqdn
+
+    - name: 'Deploy Container App'
+      uses: Azure/CLI@v1
+      continue-on-error: false
+      with:
+        inlineScript: |
+          az containerapp update \
+             --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
+             --resource-group ${{ env.Azure_Resource_GroupName }} \
+             --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
 
     # - name: 'Deploy Container App'
     #   uses: Azure/CLI@v1
