@@ -1,4 +1,4 @@
-name: Build and deploy Docker app to Azure v2
+name: Build and deploy Docker app to Azure
 on:
   push:
     branches:
