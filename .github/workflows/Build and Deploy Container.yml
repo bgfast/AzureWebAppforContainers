@@ -1,8 +1,8 @@
-name: Build and deploy Docker app to Azure
+name: Build and Deploy Container
 on:
-  #push:
-  #  branches:
-  #    - master
+  push:
+    branches:
+      - master
 
   # Allow mannually trigger 
   workflow_dispatch: 
@@ -43,14 +43,12 @@ jobs:
         inlineScript: |
           #!/bin/bash
           az group create --name ${{ env.Azure_Resource_GroupName }} --location ${{ env.Azure_Resource_GroupLocation }}
-
     - name: Ensure Resource Group is UnLocked
       uses: Azure/CLI@v1
       continue-on-error: true
       with:
         inlineScript: |
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
-
     - name: Checkout
       uses: actions/checkout@v3
 
@@ -79,13 +77,11 @@ jobs:
       with:
         inlineScript: |
           az group lock create --lock-type CanNotDelete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }} --notes 'Prevent deletion of the resource group'
-
     - name: DEBUG ONLY Display Output Variables
       run: |
          echo 'output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}'
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
          echo 'output_containerName: ${{ steps.Infra.outputs.out_containerName }}'
-
   docker_build_push:
     name: Docker Build & Push to ACR
     runs-on: ubuntu-latest
@@ -122,13 +118,11 @@ jobs:
             --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
-
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
         docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
         docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
-
     - name: Azure CLI script
       uses: azure/CLI@v1
       with:
@@ -160,7 +154,6 @@ jobs:
          echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
          echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
          echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
-
     - name: 'Deploy Container to Web App'
       uses: azure/webapps-deploy@v2
       with: 
@@ -205,7 +198,6 @@ jobs:
             --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
-
     - name: DEBUG ONLY Display Output Variables
       run: |
          echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}'
@@ -215,7 +207,6 @@ jobs:
          echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
          echo 'acrusername: ${{ steps.GetKVACRValues.outputs.acrusername }}'
          echo 'acruserpassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}'
-
     - name: 'Deploy to Container App'
       uses: Azure/CLI@v1
       continue-on-error: false
@@ -234,7 +225,6 @@ jobs:
             --target-port 80 \
             --ingress external \
             --env-vars CorsAllowedHosts=*
-
     - name: Azure CLI script
       uses: azure/CLI@v1
       with:
