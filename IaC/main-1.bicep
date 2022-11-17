@@ -24,7 +24,8 @@ var containerAppEnvName = 'cae-${uniqueString(resourceGroup().id)}'
 var containerAppLogAnalyticsName = 'calog-${uniqueString(resourceGroup().id)}'
 
 // Default image needed to create Container App
-var containerImage = 'mcr.microsoft.com/hello-world:latest'
+// https://mcr.microsoft.com/en-us/product/mcr/hello-world/about
+var containerImage = 'mcr.microsoft.com/mcr/hello-world:v2.0'
 
 // Tags
 var defaultTags = {
