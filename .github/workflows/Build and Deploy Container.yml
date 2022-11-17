@@ -17,6 +17,10 @@ env:
   WORKING_DIRECTORY: .
   
 jobs:
+
+  ################################################################
+  # Stage: Deploy Infrastructure
+  ################################################################  
   deploy_infrastructure:
     runs-on: ubuntu-latest
     outputs:
@@ -36,6 +40,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    # Check if Resource Group Exists
     - name: Ensure Resource Group Exists
       uses: Azure/CLI@v1
       continue-on-error: true
@@ -43,21 +48,17 @@ jobs:
         inlineScript: |
           #!/bin/bash
           az group create --name ${{ env.Azure_Resource_GroupName }} --location ${{ env.Azure_Resource_GroupLocation }}
+
+    # Unlock Resource Group
     - name: Ensure Resource Group is UnLocked
       uses: Azure/CLI@v1
       continue-on-error: true
       with:
         inlineScript: |
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
+
     - name: Checkout
       uses: actions/checkout@v3
-
-    # - name: Download Build Artifact-Infrastructure
-    #   uses: actions/download-artifact@v3
-    #   continue-on-error: false
-    #   with:
-    #     name: IaC
-    #     path: ${{ github.workspace }}/IaC
 
       # Deploy ARM Template using Bicep DSL
     - name: Infrastructure Deploy
@@ -71,17 +72,23 @@ jobs:
         deploymentMode: Incremental
         failOnStdErr: false
 
+    # Lock Resource Group
     - name: Ensure Resource Group is Locked
       uses: Azure/CLI@v1
       continue-on-error: true
       with:
         inlineScript: |
           az group lock create --lock-type CanNotDelete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }} --notes 'Prevent deletion of the resource group'
+
     - name: DEBUG ONLY Display Output Variables
       run: |
          echo 'output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}'
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
          echo 'output_containerName: ${{ steps.Infra.outputs.out_containerName }}'
+
+  ################################################################
+  # Stage: Build Container and Push to ACR
+  ################################################################  
   docker_build_push:
     name: Docker Build & Push to ACR
     runs-on: ubuntu-latest
@@ -101,6 +108,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+    # Get ACR name/ACR password from Key Vault
     - name: 'Get Key Vault values'
       id: GetKVACRValues
       uses: Azure/CLI@v1
@@ -118,11 +126,31 @@ jobs:
             --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
+
+    # Unlock Resource Group
+    - name: Ensure Resource Group is UnLocked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
+
+    # Build container and push to ACR
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
         docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
         docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+
+    # Lock Resource Group
+    - name: Ensure Resource Group is Locked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock create --lock-type CanNotDelete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }} --notes 'Prevent deletion of the resource group'
+
+    # Logout of Azure and Clear the Cache
     - name: Azure CLI script
       uses: azure/CLI@v1
       with:
@@ -130,7 +158,10 @@ jobs:
           az logout
           az cache purge
           az account clear
-            
+
+  ################################################################
+  # Stage: Deploy to Web App
+  ################################################################              
   deploy_application_to_webapp:
     name: Deploy to Web App
     needs: [docker_build_push, deploy_infrastructure]
@@ -154,12 +185,31 @@ jobs:
          echo 'output_keyvaultName: ${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}'
          echo 'output_containerName: ${{ needs.deploy_infrastructure.outputs.output_containerName }}'
          echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
+
+    # Unlock Resource Group
+    - name: Ensure Resource Group is UnLocked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
+
+    # Deploy container to Web App
     - name: 'Deploy Container to Web App'
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
         images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
+    # Lock Resource Group
+    - name: Ensure Resource Group is Locked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock create --lock-type CanNotDelete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }} --notes 'Prevent deletion of the resource group'
+
+    # Logout of Azure and Clear the Cache
     - name: Azure CLI script
       uses: azure/CLI@v1
       with:
@@ -167,7 +217,10 @@ jobs:
           az logout
           az cache purge
           az account clear
-            
+
+  ################################################################
+  # Stage: Deploy to Container App
+  ################################################################            
   deploy_application_to_containerapp:
     name: Deploy Container App
     needs: [docker_build_push, deploy_infrastructure]
@@ -198,6 +251,7 @@ jobs:
             --vault-name "${{ needs.deploy_infrastructure.outputs.output_keyvaultName }}" \
             --query "value" --output tsv)
           echo "::set-output name=acruserpassword::$result"
+
     - name: DEBUG ONLY Display Output Variables
       run: |
          echo 'output_webSiteName: ${{ needs.deploy_infrastructure.outputs.out_webSiteName }}'
@@ -207,6 +261,17 @@ jobs:
          echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
          echo 'acrusername: ${{ steps.GetKVACRValues.outputs.acrusername }}'
          echo 'acruserpassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}'
+
+    # Unlock Resource Group
+    - name: Ensure Resource Group is UnLocked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
+
+    # Deploy container to Container App
+    # --secrets ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}=${{ steps.GetKVACRValues.outputs.acruserpassword }} \
     - name: 'Deploy to Container App'
       uses: Azure/CLI@v1
       continue-on-error: false
@@ -221,10 +286,19 @@ jobs:
             --registry-username ${{ steps.GetKVACRValues.outputs.acrusername }} \
             --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \
             --environment ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }} \
-            --secrets ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}=${{ steps.GetKVACRValues.outputs.acruserpassword }} \
             --target-port 80 \
             --ingress external \
             --env-vars CorsAllowedHosts=*
+
+    # Lock Resource Group
+    - name: Ensure Resource Group is Locked
+      uses: Azure/CLI@v1
+      continue-on-error: true
+      with:
+        inlineScript: |
+          az group lock create --lock-type CanNotDelete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }} --notes 'Prevent deletion of the resource group'
+
+    # Logout of Azure and Clear the Cache
     - name: Azure CLI script
       uses: azure/CLI@v1
       with:
