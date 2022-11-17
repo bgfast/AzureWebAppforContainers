@@ -60,9 +60,9 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' 
 }
 
 // Reference Existing resource
-resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
-  name: containerregistryName
-}
+// resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+//   name: containerregistryName
+// }
 
 resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
   name: containerAppName
