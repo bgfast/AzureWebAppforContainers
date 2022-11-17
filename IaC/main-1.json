@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.12.40.16777",
-      "templateHash": "16095377319762782023"
+      "templateHash": "15927592684597506935"
     }
   },
   "parameters": {
@@ -54,6 +54,7 @@
     "containerAppName": "[format('ca-{0}', uniqueString(resourceGroup().id))]",
     "containerAppEnvName": "[format('cae-{0}', uniqueString(resourceGroup().id))]",
     "containerAppLogAnalyticsName": "[format('calog-{0}', uniqueString(resourceGroup().id))]",
+    "containerImage": "mcr.microsoft.com/hello-world:latest",
     "defaultTags": {
       "App": "Web App for Containers",
       "CostCenter": "[parameters('costCenter')]",
@@ -637,6 +638,9 @@
           },
           "containerregistryName": {
             "value": "[variables('containerregistryName')]"
+          },
+          "containerImage": {
+            "value": "[variables('containerImage')]"
           }
         },
         "template": {
@@ -646,7 +650,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "3383975663689004174"
+              "templateHash": "14328636043534316875"
             }
           },
           "parameters": {
@@ -662,6 +666,9 @@
             "containerregistryName": {
               "type": "string"
             },
+            "containerImage": {
+              "type": "string"
+            },
             "location": {
               "type": "string",
               "allowedValues": [
@@ -673,13 +680,6 @@
               ],
               "metadata": {
                 "description": "Specifies the location for all resources."
-              }
-            },
-            "containerImage": {
-              "type": "string",
-              "defaultValue": "mcr.microsoft.com/azuredocs/containerapps-helloworld:latest",
-              "metadata": {
-                "description": "Specifies the docker container image to deploy."
               }
             },
             "targetPort": {

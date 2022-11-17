@@ -23,6 +23,9 @@ var containerAppName = 'ca-${uniqueString(resourceGroup().id)}'
 var containerAppEnvName = 'cae-${uniqueString(resourceGroup().id)}'
 var containerAppLogAnalyticsName = 'calog-${uniqueString(resourceGroup().id)}'
 
+// Default image needed to create Container App
+var containerImage = 'mcr.microsoft.com/hello-world:latest'
+
 // Tags
 var defaultTags = {
   App: 'Web App for Containers'
@@ -91,6 +94,7 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
     containerAppName: containerAppName
     location: location
     containerregistryName: containerregistryName
+    containerImage: containerImage
   }
   dependsOn:  [
     containerregistrymod
