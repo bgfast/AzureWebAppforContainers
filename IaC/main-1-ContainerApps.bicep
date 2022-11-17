@@ -133,12 +133,12 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
         {
           server: existing_containerregistry.properties.loginServer
           username: containerregistryName
-          passwordSecretRef: 'container-registry-password'
+          passwordSecretRef: existing_containerregistry.name
         }
       ]
       secrets: [
         {
-          name: 'container-registry-password' //existing_containerregistry.name
+          name: existing_containerregistry.name
           value: existing_containerregistry.listCredentials().passwords[0].value
         }
       ]
