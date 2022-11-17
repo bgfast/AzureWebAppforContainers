@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.12.40.16777",
-      "templateHash": "14129162573277395335"
+      "templateHash": "16095377319762782023"
     }
   },
   "parameters": {
@@ -53,7 +53,7 @@
     "containerName": "[format('containers-{0}', uniqueString(resourceGroup().id))]",
     "containerAppName": "[format('ca-{0}', uniqueString(resourceGroup().id))]",
     "containerAppEnvName": "[format('cae-{0}', uniqueString(resourceGroup().id))]",
-    "containerAppLogAnalyticsName": "[format('containerapp-log-{0}', uniqueString(resourceGroup().id))]",
+    "containerAppLogAnalyticsName": "[format('calog-{0}', uniqueString(resourceGroup().id))]",
     "defaultTags": {
       "App": "Web App for Containers",
       "CostCenter": "[parameters('costCenter')]",
@@ -646,7 +646,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.12.40.16777",
-              "templateHash": "13129347904598040031"
+              "templateHash": "3383975663689004174"
             }
           },
           "parameters": {
@@ -773,13 +773,7 @@
                         "weight": 100
                       }
                     ]
-                  },
-                  "secrets": [
-                    {
-                      "name": "[parameters('containerregistryName')]",
-                      "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries', parameters('containerregistryName')), '2022-02-01-preview').passwords[0].value]"
-                    }
-                  ]
+                  }
                 },
                 "template": {
                   "revisionSuffix": "firstrevision",
