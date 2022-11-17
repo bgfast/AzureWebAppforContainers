@@ -26,6 +26,7 @@ var containerAppLogAnalyticsName = 'calog-${uniqueString(resourceGroup().id)}'
 // Default image needed to create Container App
 // https://mcr.microsoft.com/en-us/product/mcr/hello-world/about
 var containerImage = 'mcr.microsoft.com/mcr/hello-world:v2.0'
+//var containerImage = 'mcr.microsoft.com/azuredocs/containerapps-helloworld:latest'
 
 // Tags
 var defaultTags = {
@@ -96,6 +97,7 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
     location: location
     containerregistryName: containerregistryName
     containerImage: containerImage
+    defaultTags: defaultTags
   }
   dependsOn:  [
     containerregistrymod

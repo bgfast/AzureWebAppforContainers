@@ -2,6 +2,7 @@ param containerAppName string
 param containerAppEnvName string
 param containerAppLogAnalyticsName string
 param containerregistryName string
+param defaultTags object
 
 // Specifies the docker container image to deploy.')
 param containerImage string
@@ -48,6 +49,7 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' = {
   name: containerAppEnvName
   location: location
+  tags: defaultTags
   properties: {
     appLogsConfiguration: {
       destination: 'log-analytics'
@@ -59,55 +61,10 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' 
   }
 }
 
-resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
-  name: containerAppName
-  location: location
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    managedEnvironmentId: containerAppEnv.id
-    configuration: {
-      ingress: {
-        external: true
-        targetPort: targetPort
-        allowInsecure: false
-        traffic: [
-          {
-            latestRevision: true
-            weight: 100
-          }
-        ]
-      }
-    }
-    template: {
-      revisionSuffix: 'firstrevision'
-      containers: [
-        {
-          name: containerAppName
-          image: containerImage
-          resources: {
-            cpu: json(cpuCore)
-            memory: '${memorySize}Gi'
-          }
-        }
-      ]
-      scale: {
-        minReplicas: minReplicas
-        maxReplicas: maxReplicas
-      }
-    }
-  }
-}
-
-// Reference Existing resource
-// resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
-//   name: containerregistryName
-// }
-
 // resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
 //   name: containerAppName
 //   location: location
+//   tags: defaultTags
 //   identity: {
 //     type: 'SystemAssigned'
 //   }
@@ -125,12 +82,6 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
 //           }
 //         ]
 //       }
-//       // secrets: [
-//       //   {
-//       //     name: existing_containerregistry.name
-//       //     value: existing_containerregistry.listCredentials().passwords[0].value
-//       //   }
-//       // ]
 //     }
 //     template: {
 //       revisionSuffix: 'firstrevision'
@@ -151,5 +102,65 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
 //     }
 //   }
 // }
+
+// Reference Existing resource
+resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
+  name: containerregistryName
+}
+
+resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
+  name: containerAppName
+  location: location
+  tags: defaultTags
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    managedEnvironmentId: containerAppEnv.id
+    configuration: {
+      ingress: {
+        external: true
+        targetPort: targetPort
+        allowInsecure: false
+        traffic: [
+          {
+            latestRevision: true
+            weight: 100
+          }
+        ]
+      }
+      registries: [
+        {
+          server: existing_containerregistry.properties.loginServer
+          username: containerregistryName
+          passwordSecretRef: 'container-registry-password'
+        }
+      ]
+      secrets: [
+        {
+          name: 'container-registry-password' //existing_containerregistry.name
+          value: existing_containerregistry.listCredentials().passwords[0].value
+        }
+      ]
+    }
+    template: {
+      revisionSuffix: 'firstrevision'
+      containers: [
+        {
+          name: containerAppName
+          image: containerImage
+          resources: {
+            cpu: json(cpuCore)
+            memory: '${memorySize}Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: minReplicas
+        maxReplicas: maxReplicas
+      }
+    }
+  }
+}
 
 output containerAppFQDN string = containerApp.properties.configuration.ingress.fqdn
