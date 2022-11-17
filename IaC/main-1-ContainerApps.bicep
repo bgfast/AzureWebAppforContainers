@@ -129,19 +129,19 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
           }
         ]
       }
-      registries: [
-        {
-          server: existing_containerregistry.properties.loginServer
-          username: containerregistryName
-          passwordSecretRef: 'container-registry-password'
-        }
-      ]
-      secrets: [
-        {
-          name: 'container-registry-password' //existing_containerregistry.name
-          value: existing_containerregistry.listCredentials().passwords[0].value
-        }
-      ]
+      // registries: [
+      //   {
+      //     server: existing_containerregistry.properties.loginServer
+      //     username: containerregistryName
+      //     passwordSecretRef: 'container-registry-password'
+      //   }
+      // ]
+      // secrets: [
+      //   {
+      //     name: 'container-registry-password' //existing_containerregistry.name
+      //     value: existing_containerregistry.listCredentials().passwords[0].value
+      //   }
+      // ]
     }
     template: {
       revisionSuffix: 'firstrevision'

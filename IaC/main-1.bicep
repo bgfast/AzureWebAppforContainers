@@ -99,9 +99,9 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
     containerImage: containerImage
     defaultTags: defaultTags
   }
-  // dependsOn:  [
-  //   containerregistrymod
-  // ]
+  dependsOn:  [
+    containerregistrymod
+  ]
  }
 
 // This is NOT supported. Look up Object ID for Service Principal
