@@ -88,21 +88,21 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
  }
 
  // Create Azure Container App
- module containerappmod './main-1-ContainerApps.bicep' = {
-  name: containerAppName
-  params: {
-    containerAppEnvName: containerAppEnvName
-    containerAppLogAnalyticsName: containerAppLogAnalyticsName
-    containerAppName: containerAppName
-    location: location
-    containerregistryName: containerregistryName
-    containerImage: containerImage
-    defaultTags: defaultTags
-  }
-  dependsOn:  [
-    containerregistrymod
-  ]
- }
+//  module containerappmod './main-1-ContainerApps.bicep' = {
+//   name: containerAppName
+//   params: {
+//     containerAppEnvName: containerAppEnvName
+//     containerAppLogAnalyticsName: containerAppLogAnalyticsName
+//     containerAppName: containerAppName
+//     location: location
+//     containerregistryName: containerregistryName
+//     containerImage: containerImage
+//     defaultTags: defaultTags
+//   }
+//   dependsOn:  [
+//     containerregistrymod
+//   ]
+//  }
 
 // This is NOT supported. Look up Object ID for Service Principal
 //var randyPagelsRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'rpagels@microsoft.com') // b6be0700-1fda-4f88-bf20-1aa508a91f73
