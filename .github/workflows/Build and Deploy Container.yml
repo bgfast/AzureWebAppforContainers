@@ -271,12 +271,12 @@ jobs:
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
     - name: Build and Deploy to Container App 
-        uses: azure/container-apps-deploy-action@v0 
-        with: 
-          appSourcePath: ${{ github.workspace }}/Application/AspNetWebApp.Web
-          acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io 
-          containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
-          resourceGroup: ${{ env.Azure_Resource_GroupName }}
+      uses: azure/container-apps-deploy-action@v0 
+      with: 
+        appSourcePath: ${{ github.workspace }}/Application/AspNetWebApp.Web
+        acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io 
+        containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
+        resourceGroup: ${{ env.Azure_Resource_GroupName }}
 
     # Deploy container to Container App
     # --secrets ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}=${{ steps.GetKVACRValues.outputs.acruserpassword }} \
