@@ -270,11 +270,15 @@ jobs:
         inlineScript: |
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
+    # PREVIEW - https://github.com/marketplace/actions/azure-container-apps-build-and-deploy
+    # Not using the Build portion. Deploying a container from ACR
     - name: Build and Deploy to Container App 
       uses: azure/container-apps-deploy-action@v0 
       with: 
-        appSourcePath: ${{ github.workspace }}/Application/AspNetWebApp.Web
         acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
+        acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
+        acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
+        imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
         containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
         resourceGroup: ${{ env.Azure_Resource_GroupName }}
 
