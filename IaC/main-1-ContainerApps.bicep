@@ -3,7 +3,6 @@ param containerAppEnvName string
 param containerAppLogAnalyticsName string
 param containerregistryName string
 param defaultTags object
-param ContainerRevisionSuffix string
 
 // Specifies the docker container image to deploy.')
 param containerImage string
