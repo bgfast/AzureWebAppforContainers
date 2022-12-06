@@ -1,5 +1,8 @@
 // Deploy Azure infrastructure for FuncApp + monitoring
 
+// User friendly suffix that is appended to the revision name
+param ContainerRevisionSuffix string
+
 // Region for all resources
 param location string = resourceGroup().location
 param createdBy string = 'Randy Pagels'
@@ -98,6 +101,7 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
      containerregistryName: containerregistryName
      containerImage: containerImage
      defaultTags: defaultTags
+     ContainerRevisionSuffix: ContainerRevisionSuffix
    }
    dependsOn:  [
      containerregistrymod

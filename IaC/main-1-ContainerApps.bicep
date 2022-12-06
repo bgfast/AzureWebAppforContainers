@@ -3,6 +3,7 @@ param containerAppEnvName string
 param containerAppLogAnalyticsName string
 param containerregistryName string
 param defaultTags object
+param ContainerRevisionSuffix string
 
 // Specifies the docker container image to deploy.')
 param containerImage string
@@ -61,48 +62,6 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' 
   }
 }
 
-// resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
-//   name: containerAppName
-//   location: location
-//   tags: defaultTags
-//   identity: {
-//     type: 'SystemAssigned'
-//   }
-//   properties: {
-//     managedEnvironmentId: containerAppEnv.id
-//     configuration: {
-//       ingress: {
-//         external: true
-//         targetPort: targetPort
-//         allowInsecure: false
-//         traffic: [
-//           {
-//             latestRevision: true
-//             weight: 100
-//           }
-//         ]
-//       }
-//     }
-//     template: {
-//       revisionSuffix: 'firstrevision'
-//       containers: [
-//         {
-//           name: containerAppName
-//           image: containerImage
-//           resources: {
-//             cpu: json(cpuCore)
-//             memory: '${memorySize}Gi'
-//           }
-//         }
-//       ]
-//       scale: {
-//         minReplicas: minReplicas
-//         maxReplicas: maxReplicas
-//       }
-//     }
-//   }
-// }
-
 // Reference Existing resource
 resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
   name: containerregistryName
@@ -144,7 +103,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
       ]
    }
     template: {
-      revisionSuffix: 'firstrevision-v2'
+      revisionSuffix: ContainerRevisionSuffix //'firstrevision-v2'
       containers: [
         {
           name: containerAppName
