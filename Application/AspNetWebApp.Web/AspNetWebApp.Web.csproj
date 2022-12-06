@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+	<TargetFramework>net7.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+    <!--<TargetFramework>net6.0</TargetFramework>-->
     <UserSecretsId>474df41f-9afc-4e48-a585-c7703a5ed681</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <ApplicationInsightsResourceId>/subscriptions/f5e66d29-1a7f-4ee3-822e-74f644d3e665/resourceGroups/rg-AzureWebAppforContainerApps/providers/microsoft.insights/components/appi-loygobg4zzfba</ApplicationInsightsResourceId>
