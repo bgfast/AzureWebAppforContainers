@@ -10,7 +10,7 @@ on:
 env:
   DOCKERFILEPATH: "Application/AspNetWebApp.Web"
   
-  dotnet_version: '7.x.x'
+  dotnet_version: '6.x.x'
   Azure_Resource_GroupName: 'rg-AzureWebAppforContainerApps'
   Azure_Resource_GroupLocation: 'eastus2'
   CONFIGURATION: Release
