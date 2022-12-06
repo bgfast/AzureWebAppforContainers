@@ -103,7 +103,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
       ]
    }
     template: {
-      revisionSuffix: ContainerRevisionSuffix //'firstrevision-v2'
+      //revisionSuffix: ContainerRevisionSuffix //'firstrevision-v2'
       containers: [
         {
           name: containerAppName
