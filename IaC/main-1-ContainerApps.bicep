@@ -67,6 +67,8 @@ resource existing_containerregistry 'Microsoft.ContainerRegistry/registries@2022
   name: containerregistryName
 }
 
+// Create Container App
+// Note: revisionSuffix MUST BE unique per deployment.
 resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
   name: containerAppName
   location: location
@@ -103,7 +105,7 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
       ]
    }
     template: {
-      //revisionSuffix: ContainerRevisionSuffix //'firstrevision-v2'
+      //revisionSuffix: 'firstrevision'
       containers: [
         {
           name: containerAppName
