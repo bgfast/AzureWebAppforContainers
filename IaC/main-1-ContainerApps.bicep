@@ -36,14 +36,28 @@ param minReplicas int = 1
 @maxValue(25)
 param maxReplicas int = 3
 
+// resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+//   name: containerAppLogAnalyticsName
+//   location: location
+//   properties: {
+//     sku: {
+//       name: 'PerGB2018'
+//     }
+//   }
+// }
+
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   name: containerAppLogAnalyticsName
   location: location
-  properties: {
+  properties: any({
+    retentionInDays: 30
+    features: {
+      searchVersion: 1
+    }
     sku: {
       name: 'PerGB2018'
     }
-  }
+  })
 }
 
 resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' = {
@@ -51,6 +65,8 @@ resource containerAppEnv 'Microsoft.App/managedEnvironments@2022-06-01-preview' 
   location: location
   tags: defaultTags
   properties: {
+    type: 'managed'
+    internalLoadBalancerEnabled: false
     appLogsConfiguration: {
       destination: 'log-analytics'
       logAnalyticsConfiguration: {
@@ -79,16 +95,20 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
     managedEnvironmentId: containerAppEnv.id
     configuration: {
       ingress: {
-        external: true
+        external: false
         targetPort: targetPort
-        allowInsecure: false
-        traffic: [
-          {
-            latestRevision: true
-            weight: 100
-          }
-        ]
       }
+      // ingress: {
+      //   external: false
+      //   targetPort: targetPort
+      //   allowInsecure: false
+      //   traffic: [
+      //     {
+      //       latestRevision: true
+      //       weight: 100
+      //     }
+      //   ]
+      // }
       registries: [
         {
           server: existing_containerregistry.properties.loginServer
@@ -104,7 +124,6 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
       ]
    }
     template: {
-      //revisionSuffix: 'firstrevision'
       containers: [
         {
           name: containerAppName
