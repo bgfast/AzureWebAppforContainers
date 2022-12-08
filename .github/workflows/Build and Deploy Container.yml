@@ -94,6 +94,7 @@ jobs:
          echo 'output_webSiteName: ${{ steps.Infra.outputs.out_webSiteName }}'
          echo 'output_keyvaultName: ${{ steps.Infra.outputs.out_keyvaultName }}'
          echo 'output_containerName: ${{ steps.Infra.outputs.out_containerName }}'
+         echo 'output_containerAppFQDN: ${{ steps.Infra.outputs.out_containerAppFQDN }}'
 
   ################################################################
   # Stage: Build Container and Push to ACR
@@ -274,6 +275,7 @@ jobs:
          echo 'output_containerAppEnvName: ${{ needs.deploy_infrastructure.outputs.output_containerAppEnvName }}'
          echo 'acrusername: ${{ steps.GetKVACRValues.outputs.acrusername }}'
          echo 'acruserpassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}'
+         echo 'output_containerAppFQDN: ${{ needs.deploy_infrastructure.outputs.output_containerAppFQDN }}'
 
     # Unlock Resource Group
     - name: Ensure Resource Group is UnLocked
