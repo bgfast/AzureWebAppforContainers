@@ -63,7 +63,7 @@ jobs:
     - name: Set short git commit SHA
       id: vars
       run: |
-        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        calculatedSha=$(git rev-parse --short ${{ github.run_number }})
         echo "::set-output name=short_sha::$calculatedSha"
 
     - name: Confirm git commit SHA output
@@ -144,12 +144,12 @@ jobs:
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
     # Build container and push to ACR
-    # or use ${{ github.sha }}
+    # or use ${{ github.run_number }}
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
-        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
-        docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
+        docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
 
     # Lock Resource Group
     - name: Ensure Resource Group is Locked
@@ -208,7 +208,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
-        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
 
     # Lock Resource Group
     - name: Ensure Resource Group is Locked
@@ -287,7 +287,7 @@ jobs:
     #     acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
     #     acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
     #     acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
-    #     imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+    #     imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
     #     containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
     #     resourceGroup: ${{ env.Azure_Resource_GroupName }}
 
@@ -302,7 +302,7 @@ jobs:
           az containerapp create \
             --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
             --resource-group ${{ env.Azure_Resource_GroupName }} \
-            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
+            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }} \
             --registry-server ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io \
             --registry-username ${{ steps.GetKVACRValues.outputs.acrusername }} \
             --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \
