@@ -176,7 +176,7 @@ jobs:
     name: Deploy to Web App
     needs: [docker_build_push, deploy_infrastructure]
     environment:
-      name: 'Development'
+      name: 'Development-WebApps'
       url: 'https://${{ needs.deploy_infrastructure.outputs.output_webSiteName }}.azurewebsites.net/'
     runs-on: ubuntu-latest
 
@@ -235,7 +235,7 @@ jobs:
     name: Deploy to Container App
     needs: [docker_build_push, deploy_infrastructure]
     environment:
-      name: 'Development'
+      name: 'Development-ContainerApps'
       url: '${{ needs.deploy_infrastructure.outputs.output_containerAppFQDN }}'
     runs-on: ubuntu-latest
     steps:
