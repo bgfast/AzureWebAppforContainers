@@ -94,21 +94,17 @@ resource containerApp 'Microsoft.App/containerApps@2022-06-01-preview' = {
   properties: {
     managedEnvironmentId: containerAppEnv.id
     configuration: {
-      ingress: {
-        external: false
-        targetPort: targetPort
-      }
-      // ingress: {
-      //   external: false
-      //   targetPort: targetPort
-      //   allowInsecure: false
-      //   traffic: [
-      //     {
-      //       latestRevision: true
-      //       weight: 100
-      //     }
-      //   ]
-      // }
+       ingress: {
+         external: true
+         targetPort: targetPort
+         allowInsecure: true
+         traffic: [
+           {
+             latestRevision: true
+             weight: 100
+           }
+         ]
+       }
       registries: [
         {
           server: existing_containerregistry.properties.loginServer
