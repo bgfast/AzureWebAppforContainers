@@ -144,6 +144,7 @@ jobs:
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
     # Build container and push to ACR
+    # or use ${{ github.sha }}
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
@@ -280,15 +281,15 @@ jobs:
 
     # PREVIEW - https://github.com/marketplace/actions/azure-container-apps-build-and-deploy
     # Not using the Build portion. Deploying a container from ACR
-    - name: Build and Deploy to Container App 
-      uses: azure/container-apps-deploy-action@v0 
-      with: 
-        acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
-        acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
-        acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
-        imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
-        containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
-        resourceGroup: ${{ env.Azure_Resource_GroupName }}
+    # - name: Build and Deploy to Container App 
+    #   uses: azure/container-apps-deploy-action@v0 
+    #   with: 
+    #     acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
+    #     acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
+    #     acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
+    #     imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+    #     containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
+    #     resourceGroup: ${{ env.Azure_Resource_GroupName }}
 
     # Deploy container to Container App
     # --secrets ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}=${{ steps.GetKVACRValues.outputs.acruserpassword }} \
