@@ -98,7 +98,7 @@ jobs:
   # Stage: Build Container and Push to ACR
   ################################################################  
   docker_build_push:
-    name: Docker Build & Push to ACR
+    name: Docker Build/Push ACR
     runs-on: ubuntu-latest
     needs: deploy_infrastructure
     steps:
@@ -230,7 +230,7 @@ jobs:
   # Stage: Deploy to Container App
   ################################################################            
   deploy_application_to_containerapp:
-    name: Deploy Container App
+    name: Deploy to Container App
     needs: [docker_build_push, deploy_infrastructure]
     runs-on: ubuntu-latest
     steps:
