@@ -30,6 +30,7 @@ jobs:
       output_containerAppName: ${{ steps.Infra.outputs.out_containerAppName }}
       output_containerName: ${{ steps.Infra.outputs.out_containerName }}
       output_containerAppEnvName: ${{ steps.Infra.outputs.out_containerAppEnvName }}
+      output_containerAppFQDN: ${{ steps.Infra.outputs.out_containerAppFQDN }}
 
     name: Deploy Infrastructure
     steps:
@@ -63,7 +64,7 @@ jobs:
     # - name: Set short git commit SHA
     #   id: vars
     #   run: |
-    #     calculatedSha=$(git rev-parse --short ${{ github.run_number }})
+    #     calculatedSha=$(git rev-parse --short ${{ github.sha }})
     #     echo "::set-output name=short_sha::$calculatedSha"
 
     # - name: Confirm git commit SHA output
@@ -144,12 +145,12 @@ jobs:
           az group lock delete --name DontDeleteMe --resource-group ${{ env.Azure_Resource_GroupName }}
 
     # Build container and push to ACR
-    # or use ${{ github.run_number }}
+    # or use ${{ github.sha }}
     - name: Docker Build & Push to ACR
       run: |
         docker login ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io --username ${{ steps.GetKVACRValues.outputs.acrusername }} --password ${{ steps.GetKVACRValues.outputs.acruserpassword }}
-        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
-        docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
+        docker build "$GITHUB_WORKSPACE/${{env.DOCKERFILEPATH}}" -f  "${{env.DOCKERFILEPATH}}/Dockerfile" -t ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
+        docker push ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
     # Lock Resource Group
     - name: Ensure Resource Group is Locked
@@ -208,7 +209,7 @@ jobs:
       uses: azure/webapps-deploy@v2
       with: 
         app-name: ${{ needs.deploy_infrastructure.outputs.output_webSiteName }}
-        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
+        images: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
 
     # Lock Resource Group
     - name: Ensure Resource Group is Locked
@@ -233,6 +234,9 @@ jobs:
   deploy_application_to_containerapp:
     name: Deploy to Container App
     needs: [docker_build_push, deploy_infrastructure]
+    environment:
+      name: 'Development'
+      url: '${{ needs.deploy_infrastructure.outputs.output_containerAppFQDN }}'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -287,7 +291,7 @@ jobs:
     #     acrName: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}
     #     acrUsername: ${{ steps.GetKVACRValues.outputs.acrusername }}
     #     acrPassword: ${{ steps.GetKVACRValues.outputs.acruserpassword }}
-    #     imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }}
+    #     imageToDeploy: ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }}
     #     containerAppName: ${{ needs.deploy_infrastructure.outputs.output_containerAppName }}
     #     resourceGroup: ${{ env.Azure_Resource_GroupName }}
 
@@ -302,7 +306,7 @@ jobs:
           az containerapp create \
             --name ${{ needs.deploy_infrastructure.outputs.output_containerAppName }} \
             --resource-group ${{ env.Azure_Resource_GroupName }} \
-            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.run_number }} \
+            --image ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io/${{ needs.deploy_infrastructure.outputs.output_containerName }}:${{ github.sha }} \
             --registry-server ${{ needs.deploy_infrastructure.outputs.output_containerregistryName }}.azurecr.io \
             --registry-username ${{ steps.GetKVACRValues.outputs.acrusername }} \
             --registry-password ${{ steps.GetKVACRValues.outputs.acruserpassword }} \

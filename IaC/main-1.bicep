@@ -144,6 +144,7 @@ output out_containerregistryName string = containerregistryName
 output out_containerAppName string = containerAppName
 output out_containerAppEnvName string = containerAppEnvName
 output out_containerName string = containerName
+output out_containerAppFQDN string = containerappmod.outputs.containerAppFQDN
 
 // output output_acr_username string = containerregistrymod.outputs.output_acr_username
 // #disable-next-line outputs-should-not-contain-secrets
