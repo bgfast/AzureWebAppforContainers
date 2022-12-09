@@ -237,7 +237,7 @@ jobs:
     needs: [docker_build_push, deploy_infrastructure]
     environment:
       name: 'Development-ContainerApps'
-      url: 'https://${{ needs.deploy_infrastructure.outputs.output_containerAppFQDN }}/'
+      url: 'https://${{ needs.deploy_infrastructure.outputs.output_containerAppFQDN }}'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
