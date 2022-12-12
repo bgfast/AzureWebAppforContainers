@@ -11,7 +11,7 @@ env:
   DOCKERFILEPATH: "Application/AspNetWebApp.Web"
   
   dotnet_version: '7.x.x'
-  Azure_Resource_GroupName: 'rg-microservices1'
+  Azure_Resource_GroupName: 'rg-microservices2'
   Azure_Resource_GroupLocation: 'eastus2'
   CONFIGURATION: Release
   WORKING_DIRECTORY: .
