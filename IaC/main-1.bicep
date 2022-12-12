@@ -2,7 +2,7 @@
 
 // Region for all resources
 param location string = resourceGroup().location
-param createdBy string = 'Randy Pagels'
+param createdBy string = 'bgfast'
 param costCenter string = '12345678'
 param nickName string = 'rpagels'
 
@@ -108,10 +108,10 @@ module keyvaultmod './main-1-KeyVault.bicep' = {
 //var randyPagelsRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'rpagels@microsoft.com') // b6be0700-1fda-4f88-bf20-1aa508a91f73
 
 // Object Id of Service Principal "AzureWebAppforContainerApps_FullAccess"
-param ADOServiceprincipalObjectId string = '653d7ee3-5006-4eb0-be45-4bf1ace4d232'
+param ADOServiceprincipalObjectId string = '689f5f89-8dfc-4e60-886b-f3a04d859962'
 
 // Application Id of Service Principal "RPagels" Alias.
-param AzObjectIdPagels string = 'b6be0700-1fda-4f88-bf20-1aa508a91f73'
+param AzObjectIdPagels string = 'b7e9d138-aa96-4069-8eb6-296717cff0cd'
 
  // Create Configuration Entries
 module configsettingsmod './main-1-ConfigSettings.bicep' = {
